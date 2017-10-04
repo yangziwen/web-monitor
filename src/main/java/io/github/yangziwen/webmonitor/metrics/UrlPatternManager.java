@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Multimap;
 
 import io.github.yangziwen.webmonitor.service.MonitorService;
+import io.github.yangziwen.webmonitor.util.MultiPathMatcher;
 
 public class UrlPatternManager {
 
@@ -23,7 +24,7 @@ public class UrlPatternManager {
 
     private static final String PATTERN_UNKNOWN = "unknown";
 
-    private static final PathMatcher URL_PATH_MATCHER = new AntPathMatcher();
+    private static final PathMatcher URL_PATH_MATCHER = new MultiPathMatcher();
 
     // 不包含模糊匹配模式的url
     private static Set<String> SIMPLE_URL_PATTERNS = Collections.emptySet();
