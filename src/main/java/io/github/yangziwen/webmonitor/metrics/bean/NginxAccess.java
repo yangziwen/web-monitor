@@ -1,4 +1,4 @@
-package io.github.yangziwen.webmonitor.stats.bean;
+package io.github.yangziwen.webmonitor.metrics.bean;
 
 public class NginxAccess {
 

@@ -1,4 +1,4 @@
-package io.github.yangziwen.webmonitor.stats.bean;
+package io.github.yangziwen.webmonitor.metrics.bean;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;

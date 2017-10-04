@@ -1,4 +1,4 @@
-package io.github.yangziwen.webmonitor.stats.bean;
+package io.github.yangziwen.webmonitor.metrics.bean;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;

@@ -1,4 +1,4 @@
-package io.github.yangziwen.webmonitor.stats.bean;
+package io.github.yangziwen.webmonitor.metrics.bean;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -10,7 +10,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 public class Distribution {
 
-    public static final int[] MILLISECOND_CEILS = { 20, 40, 60, 80, 100, 150, 200, 300, 500, 800, 1000, 1500, 2000, 3000, 5000, 10000 };
+    public static final int[] MILLISECOND_CEILS = { 20, 40, 60, 80, 100, 150, 200, 300, 500, 750, 1000, 1500, 2000, 3000, 5000, 10000 };
 
     private final AtomicInteger[] timeSlots;
 

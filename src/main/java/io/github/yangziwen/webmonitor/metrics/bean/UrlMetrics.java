@@ -1,4 +1,4 @@
-package io.github.yangziwen.webmonitor.stats.bean;
+package io.github.yangziwen.webmonitor.metrics.bean;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,8 +37,14 @@ public class UrlMetrics extends Metrics {
         return this;
     }
 
-    public static UrlMetrics createUrlMetrics(String urlPattern, ElementRing<NginxAccess> ring, int n) {
+    public static UrlMetrics fromLatestRingElements(
+            String urlPattern,
+            ElementRing<NginxAccess> ring,
+            int n) {
         UrlMetrics metrics = new UrlMetrics(urlPattern);
+        if (ring == null) {
+            return metrics;
+        }
         List<NginxAccess> list = ring.latest(n);
         for (NginxAccess access : list) {
             metrics.doStats(access);

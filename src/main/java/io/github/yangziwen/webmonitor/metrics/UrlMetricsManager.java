@@ -1,10 +1,13 @@
-package io.github.yangziwen.webmonitor.stats;
+package io.github.yangziwen.webmonitor.metrics;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
-import io.github.yangziwen.webmonitor.stats.bean.ElementRing;
-import io.github.yangziwen.webmonitor.stats.bean.NginxAccess;
-import io.github.yangziwen.webmonitor.stats.bean.UrlMetrics;
+import io.github.yangziwen.webmonitor.metrics.bean.ElementRing;
+import io.github.yangziwen.webmonitor.metrics.bean.NginxAccess;
+import io.github.yangziwen.webmonitor.metrics.bean.UrlMetrics;
 
 public class UrlMetricsManager {
 
@@ -21,7 +24,6 @@ public class UrlMetricsManager {
     }
 
     private static String parseUrlPattern(String url) {
-        // TODO
         return null;
     }
 
@@ -37,6 +39,13 @@ public class UrlMetricsManager {
             URL_METRICS_MAP.putIfAbsent(urlPattern, new UrlMetrics(urlPattern));
         }
         return URL_METRICS_MAP.get(urlPattern);
+    }
+
+    public static List<UrlMetrics> getLatestUrlMectricsList(int n) {
+        List<String> patterns = new ArrayList<>(URL_RING_MAP.keySet());
+        return patterns.stream()
+                .map(pattern -> UrlMetrics.fromLatestRingElements(pattern, URL_RING_MAP.get(pattern), n))
+                .collect(Collectors.toList());
     }
 
     // TODO 通过定时任务，将旧数据归档
