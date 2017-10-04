@@ -1,7 +1,14 @@
 package io.github.yangziwen.webmonitor.metrics.bean;
 
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
+
+import com.alibaba.fastjson.annotation.JSONField;
+
+import javafx.util.Pair;
 
 public class Metrics {
 
@@ -13,6 +20,7 @@ public class Metrics {
 
     protected AtomicLong sum = new AtomicLong(0L);
 
+    @JSONField(serialize = false)
     protected Distribution distribution = new Distribution();
 
     public int getCnt() {
@@ -38,6 +46,14 @@ public class Metrics {
         return new Long(sum.get() / cnt.get()).intValue();
     }
 
+    @SuppressWarnings("restriction")
+    public List<Pair<String, Integer>> getDistributionList() {
+        Map<String, Integer> map =  this.distribution.toMap();
+        return map.entrySet().stream()
+                .map(entry -> new Pair<>(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+    }
+
     public Distribution getDistribution() {
         return distribution;
     }
@@ -57,7 +73,7 @@ public class Metrics {
             max.compareAndSet(maxValue, value);
         }
         int minValue;
-        if (value < (minValue = min.get()) || minValue <= 0) {
+        while (value < (minValue = min.get()) || minValue <= 0) {
             min.compareAndSet(minValue, value);
         }
         distribution.doStats(value);

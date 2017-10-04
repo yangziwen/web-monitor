@@ -52,6 +52,11 @@ public enum ResultEnum {
             return this;
         }
 
+        public Result message(String message, Object...args) {
+            this.message = String.format(message, args);
+            return this;
+        }
+
         public Result data(Object data) {
             this.data = data;
             return this;

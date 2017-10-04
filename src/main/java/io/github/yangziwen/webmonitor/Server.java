@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSON;
 
 import io.github.yangziwen.webmonitor.controller.IndexController;
+import io.github.yangziwen.webmonitor.controller.MonitorController;
 import io.github.yangziwen.webmonitor.schedule.TaskConfig;
 import io.github.yangziwen.webmonitor.util.GlobalConfig;
 import it.sauronsoftware.cron4j.Scheduler;
@@ -70,6 +71,8 @@ public class Server {
     private static void initControllers() {
 
         IndexController.init();
+
+        MonitorController.init();
 
     }
 

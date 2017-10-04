@@ -11,25 +11,23 @@ import io.github.yangziwen.webmonitor.metrics.bean.UrlMetrics;
 
 public class UrlMetricsManager {
 
-    private static final int RING_CAPACITY = 2048;
+    private static final int DEFAULT_RING_CAPACITY = 512;
 
     private static ConcurrentHashMap<String, ElementRing<NginxAccess>> URL_RING_MAP = new ConcurrentHashMap<>();
 
     private static ConcurrentHashMap<String, UrlMetrics> URL_METRICS_MAP = new ConcurrentHashMap<>();
 
+    private UrlMetricsManager() {}
+
     public static void doStats(NginxAccess access) {
-        String pattern = parseUrlPattern(access.getUrl());
+        String pattern = UrlPatternManager.getBestMatchedUrlPattern(access.getBackendUrl());
         ensureRing(pattern).add(access);
         ensureMetrics(pattern).doStats(access);
     }
 
-    private static String parseUrlPattern(String url) {
-        return null;
-    }
-
     private static ElementRing<NginxAccess> ensureRing(String urlPattern) {
         if (!URL_RING_MAP.containsKey(urlPattern)) {
-            URL_RING_MAP.putIfAbsent(urlPattern, new ElementRing<>(RING_CAPACITY, NginxAccess.class));
+            URL_RING_MAP.putIfAbsent(urlPattern, new ElementRing<>(DEFAULT_RING_CAPACITY, NginxAccess.class));
         }
         return URL_RING_MAP.get(urlPattern);
     }

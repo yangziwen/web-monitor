@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
@@ -13,7 +15,11 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Multimap;
 
+import io.github.yangziwen.webmonitor.service.MonitorService;
+
 public class UrlPatternManager {
+
+    private static final Logger logger = LoggerFactory.getLogger(UrlPatternManager.class);
 
     private static final String PATTERN_UNKNOWN = "unknown";
 
@@ -27,6 +33,13 @@ public class UrlPatternManager {
 
     // 第一节路径中不包含模块匹配模式，但后续路径中包括模糊匹配模式的url
     private static Multimap<String, String> PREFIX_KEYED_URL_MAP = ImmutableSetMultimap.of();
+
+    static {
+        MonitorService.reloadUrlPatterns();
+        logger.info("loaded {} url patterns", getLoadedUrlPatternCount());
+    }
+
+    private UrlPatternManager() {}
 
     public static void reloadUrlPatterns(Collection<String> urlPatterns) {
         Multimap<String, String> prefixKeyedUrlMap = HashMultimap.create();
@@ -51,6 +64,7 @@ public class UrlPatternManager {
     }
 
     public static String getBestMatchedUrlPattern(String url) {
+
         if (StringUtils.isEmpty(url)) {
             return PATTERN_UNKNOWN;
         }
@@ -83,6 +97,12 @@ public class UrlPatternManager {
                 .findFirst()
                 .orElse(PATTERN_UNKNOWN);
 
+    }
+
+    public static int getLoadedUrlPatternCount() {
+        return SIMPLE_URL_PATTERNS.size()
+                + COMPLICATED_URL_PATTERNS.size()
+                + PREFIX_KEYED_URL_MAP.values().size();
     }
 
 
