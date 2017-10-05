@@ -1,21 +1,28 @@
 package io.github.yangziwen.webmonitor.metrics;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import io.github.yangziwen.webmonitor.metrics.bean.ElementRing;
 import io.github.yangziwen.webmonitor.metrics.bean.NginxAccess;
 import io.github.yangziwen.webmonitor.metrics.bean.UrlMetrics;
+import io.github.yangziwen.webmonitor.model.UrlMetricsResult;
+import io.github.yangziwen.webmonitor.service.MonitorService;
 
 public class UrlMetricsManager {
 
     private static final int DEFAULT_RING_CAPACITY = 512;
 
-    private static ConcurrentHashMap<String, ElementRing<NginxAccess>> URL_RING_MAP = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, ElementRing<NginxAccess>> urlRingMap = new ConcurrentHashMap<>();
 
-    private static ConcurrentHashMap<String, UrlMetrics> URL_METRICS_MAP = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, UrlMetrics> urlMetricsMap = new ConcurrentHashMap<>();
+
+    private static Date metricsRenewTime = new Date();
 
     private UrlMetricsManager() {}
 
@@ -26,26 +33,43 @@ public class UrlMetricsManager {
     }
 
     private static ElementRing<NginxAccess> ensureRing(String urlPattern) {
-        if (!URL_RING_MAP.containsKey(urlPattern)) {
-            URL_RING_MAP.putIfAbsent(urlPattern, new ElementRing<>(DEFAULT_RING_CAPACITY, NginxAccess.class));
+        ConcurrentHashMap<String, ElementRing<NginxAccess>> ringMap = urlRingMap;
+        if (!ringMap.containsKey(urlPattern)) {
+            ringMap.putIfAbsent(urlPattern, new ElementRing<>(DEFAULT_RING_CAPACITY, NginxAccess.class));
         }
-        return URL_RING_MAP.get(urlPattern);
+        return ringMap.get(urlPattern);
     }
 
     private static UrlMetrics ensureMetrics(String urlPattern) {
-        if (!URL_METRICS_MAP.containsKey(urlPattern)) {
-            URL_METRICS_MAP.putIfAbsent(urlPattern, new UrlMetrics(urlPattern));
+        ConcurrentHashMap<String, UrlMetrics> metricsMap = urlMetricsMap;
+        if (!metricsMap.containsKey(urlPattern)) {
+            metricsMap.putIfAbsent(urlPattern, new UrlMetrics(urlPattern));
         }
-        return URL_METRICS_MAP.get(urlPattern);
+        return metricsMap.get(urlPattern);
     }
 
     public static List<UrlMetrics> getLatestUrlMectricsList(int n) {
-        List<String> patterns = new ArrayList<>(URL_RING_MAP.keySet());
+        ConcurrentHashMap<String, ElementRing<NginxAccess>> ringMap = urlRingMap;
+        List<String> patterns = new ArrayList<>(ringMap.keySet());
         return patterns.stream()
-                .map(pattern -> UrlMetrics.fromLatestRingElements(pattern, URL_RING_MAP.get(pattern), n))
+                .map(pattern -> UrlMetrics.fromLatestRingElements(pattern, ringMap.get(pattern), n))
                 .collect(Collectors.toList());
     }
 
-    // TODO 通过定时任务，将旧数据归档
+    // 配置一个定时任务，每10分钟收集一次
+    public synchronized static void harvestMetricsResults() {
+        Date previousTime = metricsRenewTime;
+        Date currentTime = new Date();
+        List<UrlMetrics> metricsList = new ArrayList<>(urlMetricsMap.values());
+        urlMetricsMap = new ConcurrentHashMap<>();
+        metricsRenewTime = currentTime;
+        if (CollectionUtils.isEmpty(metricsList)) {
+            return;
+        }
+        List<UrlMetricsResult> results = metricsList.stream()
+                .map(metrics -> UrlMetricsResult.from(metrics, previousTime, currentTime))
+                .collect(Collectors.toList());
+        MonitorService.batchSaveUrlMetricsResults(results);
+    }
 
 }

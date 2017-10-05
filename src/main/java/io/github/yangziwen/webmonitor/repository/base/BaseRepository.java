@@ -1,6 +1,7 @@
 package io.github.yangziwen.webmonitor.repository.base;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -53,6 +54,30 @@ public class BaseRepository<E> extends ReadOnlyBaseRepository<E> {
 		return insertBuff.toString();
 	}
 
+	private static <T> String generateBatchInsertSql(ModelMapping<T> modelMapping, Map<String, Object> params, int batchSize) {
+	    Map<String, String> mappingWithoutId = modelMapping.getFieldColumnMappingWithoutIdField();
+
+	    StringBuilder insertBuff = new StringBuilder().append(" INSERT INTO ").append(modelMapping.getTable(params));
+        Entry<?, ?>[] entrys = mappingWithoutId.entrySet().toArray(new Entry[]{});
+        insertBuff.append(" ( ").append(entrys[0].getValue());
+        for (int i = 1; i < entrys.length; i++) {
+            insertBuff.append(", ").append(entrys[i].getValue());
+        }
+        insertBuff.append(" ) VALUES ( ");
+        for (int i = 0; i < batchSize; i++) {
+            insertBuff.append(":").append(entrys[0].getKey()).append(Operator.__).append(i);
+            for (int j = 1; j < entrys.length; j++) {
+                insertBuff.append(", :").append(entrys[j].getKey()).append(Operator.__).append(i);
+            }
+            insertBuff.append(" ) ");
+            if (i < batchSize - 1) {
+                insertBuff.append(",");
+            }
+        }
+
+        return insertBuff.toString();
+	}
+
 	private void fillIdValue(E entity, Object id) {
 		Field idField = modelMapping.getIdField();
 		if (idField == null) {
@@ -87,6 +112,28 @@ public class BaseRepository<E> extends ReadOnlyBaseRepository<E> {
 			Object id = query.executeUpdate().getKey();
 			fillIdValue(entity, id);
 		}
+	}
+
+	public void batchInsert(List<E> entities) {
+	    batchInsert(entities, EMPTY_PARAMS);
+	}
+
+	public void batchInsert(List<E> entities, Map<String, Object> params) {
+	    try (Connection conn = sql2o.open()) {
+            Query query = conn.createQuery(generateBatchInsertSql(modelMapping, params, entities.size()), true);
+            Field idField = modelMapping.getIdField();
+            for (int i = 0; i < entities.size(); i++) {
+                E entity = entities.get(i);
+                for (Field field : modelMapping.getFields()) {
+                    if (field == null || idField == field) {
+                        continue;
+                    }
+                    Object value = ReflectionUtil.getFieldValue(entity, field);
+                    query.addParameter(field.getName() + Operator.__ + i, value);
+                }
+            }
+            query.executeUpdate();
+        }
 	}
 
 	public void update(E entity) {

@@ -4,6 +4,7 @@ import static io.github.yangziwen.webmonitor.controller.ResultEnum.BAD_REQUEST;
 import static io.github.yangziwen.webmonitor.controller.ResultEnum.OK;
 
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -53,6 +54,17 @@ public class MonitorController extends BaseController {
             int n = NumberUtils.toInt(request.queryParams("n"), 64);
             String sort = request.queryParamOrDefault("sort", DEFAULT_METRICS_SORT);
             List<UrlMetrics> list = UrlMetricsManager.getLatestUrlMectricsList(n);
+            list.sort(createComparator(sort));
+            return OK.newResult().data(list);
+        }, JSON::toJSONString);
+
+        // 获取指定时间端内的统计结果
+        Spark.get("/monitor/metrics/between/list.json", (request, response) -> {
+            response.type(CONTENT_TYPE_JSON);
+            long beginTime = NumberUtils.toLong(request.queryParams("beginTime"));
+            long endTime = NumberUtils.toLong(request.queryParams("endTime"));
+            String sort = request.queryParamOrDefault("sort", DEFAULT_METRICS_SORT);
+            List<UrlMetrics> list = MonitorService.getUrlMetricsResultsBetween(new Date(beginTime), new Date(endTime));
             list.sort(createComparator(sort));
             return OK.newResult().data(list);
         }, JSON::toJSONString);

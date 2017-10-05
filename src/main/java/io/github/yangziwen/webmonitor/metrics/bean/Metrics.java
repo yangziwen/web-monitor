@@ -12,7 +12,7 @@ import javafx.util.Pair;
 
 public class Metrics {
 
-    protected AtomicInteger cnt = new AtomicInteger(0);
+    protected AtomicLong cnt = new AtomicLong(0);
 
     protected AtomicInteger min = new AtomicInteger(0);
 
@@ -23,7 +23,7 @@ public class Metrics {
     @JSONField(serialize = false)
     protected Distribution distribution = new Distribution();
 
-    public int getCnt() {
+    public long getCnt() {
         return cnt.get();
     }
 

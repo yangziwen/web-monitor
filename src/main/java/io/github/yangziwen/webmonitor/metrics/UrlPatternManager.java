@@ -8,7 +8,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
 import com.google.common.collect.HashMultimap;
@@ -27,13 +26,13 @@ public class UrlPatternManager {
     private static final PathMatcher URL_PATH_MATCHER = new MultiPathMatcher();
 
     // 不包含模糊匹配模式的url
-    private static Set<String> SIMPLE_URL_PATTERNS = Collections.emptySet();
+    private static Set<String> simpleUrlPatterns = Collections.emptySet();
 
     // 第一节路径中包含模糊匹配模式的url
-    private static Set<String> COMPLICATED_URL_PATTERNS = Collections.emptySet();
+    private static Set<String> complicatedUrlPatterns = Collections.emptySet();
 
     // 第一节路径中不包含模块匹配模式，但后续路径中包括模糊匹配模式的url
-    private static Multimap<String, String> PREFIX_KEYED_URL_MAP = ImmutableSetMultimap.of();
+    private static Multimap<String, String> prefixKeyedUrlMap = ImmutableSetMultimap.of();
 
     static {
         MonitorService.reloadUrlPatterns();
@@ -59,9 +58,9 @@ public class UrlPatternManager {
             }
             prefixKeyedUrlMap.put(prefix, pattern);
         }
-        SIMPLE_URL_PATTERNS = Collections.unmodifiableSet(simpleUrlPatterns);
-        COMPLICATED_URL_PATTERNS = Collections.unmodifiableSet(complicatedUrlPatterns);
-        PREFIX_KEYED_URL_MAP = ImmutableSetMultimap.copyOf(prefixKeyedUrlMap);
+        UrlPatternManager.simpleUrlPatterns = Collections.unmodifiableSet(simpleUrlPatterns);
+        UrlPatternManager.complicatedUrlPatterns = Collections.unmodifiableSet(complicatedUrlPatterns);
+        UrlPatternManager.prefixKeyedUrlMap = ImmutableSetMultimap.copyOf(prefixKeyedUrlMap);
     }
 
     public static String getBestMatchedUrlPattern(String url) {
@@ -78,18 +77,18 @@ public class UrlPatternManager {
             return PATTERN_UNKNOWN;
         }
 
-        if (SIMPLE_URL_PATTERNS.contains(path)) {
+        if (simpleUrlPatterns.contains(path)) {
             return path;
         }
 
         String prefix = StringUtils.split(path, "/")[0];
 
         Collection<String> urlPatterns = Collections.emptySet();
-        if (PREFIX_KEYED_URL_MAP.containsKey(prefix)) {
-            urlPatterns = PREFIX_KEYED_URL_MAP.get(prefix);
+        if (prefixKeyedUrlMap.containsKey(prefix)) {
+            urlPatterns = prefixKeyedUrlMap.get(prefix);
         }
         else if (prefix.contains("*") || prefix.contains("{")) {
-            urlPatterns = COMPLICATED_URL_PATTERNS;
+            urlPatterns = complicatedUrlPatterns;
         }
 
         return urlPatterns.stream()
@@ -101,9 +100,9 @@ public class UrlPatternManager {
     }
 
     public static int getLoadedUrlPatternCount() {
-        return SIMPLE_URL_PATTERNS.size()
-                + COMPLICATED_URL_PATTERNS.size()
-                + PREFIX_KEYED_URL_MAP.values().size();
+        return simpleUrlPatterns.size()
+                + complicatedUrlPatterns.size()
+                + prefixKeyedUrlMap.values().size();
     }
 
 
