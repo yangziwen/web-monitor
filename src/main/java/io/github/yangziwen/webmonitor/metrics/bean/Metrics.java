@@ -70,11 +70,15 @@ public class Metrics {
         sum.addAndGet(value);
         int maxValue;
         while (value > (maxValue = max.get())) {
-            max.compareAndSet(maxValue, value);
+            if (max.compareAndSet(maxValue, value)) {
+                break;
+            }
         }
         int minValue;
         while (value < (minValue = min.get()) || minValue <= 0) {
-            min.compareAndSet(minValue, value);
+            if (min.compareAndSet(minValue, value)) {
+                break;
+            }
         }
         distribution.doStats(value);
     }
@@ -87,11 +91,15 @@ public class Metrics {
         sum.addAndGet(other.getSum());
         int thisMax, otherMax;
         while ((otherMax = other.getMax()) > (thisMax = this.getMax())) {
-            max.compareAndSet(thisMax, otherMax);
+            if (max.compareAndSet(thisMax, otherMax)) {
+                break;
+            }
         }
         int thisMin, otherMin;
         while ((otherMin = other.getMin()) < (thisMin = this.getMin()) || thisMin <= 0) {
-            min.compareAndSet(thisMin, otherMin);
+            if (min.compareAndSet(thisMin, otherMin)) {
+                break;
+            }
         }
         this.distribution.merge(other.distribution);
         return this;

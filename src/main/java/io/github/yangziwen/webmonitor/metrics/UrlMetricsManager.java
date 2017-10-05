@@ -56,6 +56,10 @@ public class UrlMetricsManager {
                 .collect(Collectors.toList());
     }
 
+    public static List<UrlMetrics> getMetricsListAfterRenewTime() {
+        return new ArrayList<>(urlMetricsMap.values());
+    }
+
     // 配置一个定时任务，每10分钟收集一次
     public synchronized static void harvestMetricsResults() {
         Date previousTime = metricsRenewTime;
@@ -70,6 +74,10 @@ public class UrlMetricsManager {
                 .map(metrics -> UrlMetricsResult.from(metrics, previousTime, currentTime))
                 .collect(Collectors.toList());
         MonitorService.batchSaveUrlMetricsResults(results);
+    }
+
+    public static Date getMetricsRenewTime() {
+        return new Date(metricsRenewTime.getTime());
     }
 
 }

@@ -63,6 +63,9 @@ public class MonitorController extends BaseController {
             response.type(CONTENT_TYPE_JSON);
             long beginTime = NumberUtils.toLong(request.queryParams("beginTime"));
             long endTime = NumberUtils.toLong(request.queryParams("endTime"));
+            if (endTime == 0L) {
+                endTime = System.currentTimeMillis();
+            }
             String sort = request.queryParamOrDefault("sort", DEFAULT_METRICS_SORT);
             List<UrlMetrics> list = MonitorService.getUrlMetricsResultsBetween(new Date(beginTime), new Date(endTime));
             list.sort(createComparator(sort));

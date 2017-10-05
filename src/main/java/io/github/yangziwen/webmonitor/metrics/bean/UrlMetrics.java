@@ -48,11 +48,15 @@ public class UrlMetrics extends Metrics {
         sum.addAndGet(other.getSum());
         int thisMax, otherMax;
         while ((otherMax = other.getMax()) > (thisMax = this.getMax())) {
-            max.compareAndSet(thisMax, otherMax);
+            if (max.compareAndSet(thisMax, otherMax)) {
+                break;
+            }
         }
         int thisMin, otherMin;
         while ((otherMin = other.getMin()) < (thisMin = this.getMin()) || thisMin <= 0) {
-            min.compareAndSet(thisMin, otherMin);
+            if (min.compareAndSet(thisMin, otherMin)) {
+                break;
+            }
         }
         this.distribution.merge(other.getDistribution());
         return this;
