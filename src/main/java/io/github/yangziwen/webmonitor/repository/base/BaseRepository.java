@@ -63,15 +63,15 @@ public class BaseRepository<E> extends ReadOnlyBaseRepository<E> {
         for (int i = 1; i < entrys.length; i++) {
             insertBuff.append(", ").append(entrys[i].getValue());
         }
-        insertBuff.append(" ) VALUES ( ");
+        insertBuff.append(" ) VALUES ");
         for (int i = 0; i < batchSize; i++) {
-            insertBuff.append(":").append(entrys[0].getKey()).append(Operator.__).append(i);
+            insertBuff.append("( :").append(entrys[0].getKey()).append(Operator.__).append(i);
             for (int j = 1; j < entrys.length; j++) {
                 insertBuff.append(", :").append(entrys[j].getKey()).append(Operator.__).append(i);
             }
             insertBuff.append(" ) ");
             if (i < batchSize - 1) {
-                insertBuff.append(",");
+                insertBuff.append(", ");
             }
         }
 

@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import io.github.yangziwen.webmonitor.metrics.UrlPatternManager;
 import io.github.yangziwen.webmonitor.metrics.bean.UrlMetrics;
 import io.github.yangziwen.webmonitor.model.UrlMetricsResult;
@@ -49,7 +51,14 @@ public class MonitorService {
     }
 
     public static void batchSaveUrlMetricsResults(List<UrlMetricsResult> results) {
-        urlMetricsResultRepo.batchInsert(results);
+        if (CollectionUtils.isEmpty(results)) {
+            return;
+        }
+        int batchSize = 50;
+        for (int i = 0; i < results.size(); i += batchSize) {
+            List<UrlMetricsResult> sublist = results.subList(i, Math.min(i + batchSize, results.size()));
+            urlMetricsResultRepo.batchInsert(sublist);
+        }
     }
 
 }
