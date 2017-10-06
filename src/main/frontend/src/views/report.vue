@@ -29,17 +29,6 @@
             style="width: 100px; display: inline-block;"
             @on-change="onBeginTimeChange"
         ></Time-picker>
-        &nbsp;to:
-        <Date-picker type="date" placeholder="请选择日期"
-            :value="dateTimeRange.end.date" format="yyyy-MM-dd"
-            style="width: 120px; display: inline-block;"
-            @on-change="onEndDateChange"
-        ></Date-picker>
-        <Time-picker type="time" placeholder="选择时间"
-            :value="dateTimeRange.end.time" format="HH:mm"
-            style="width: 100px; display: inline-block;"
-            @on-change="onEndTimeChange"
-        ></Time-picker>
         &nbsp;&nbsp;
         <div style="margin-top: 10px; display: inline-block;">
         最近
@@ -57,27 +46,18 @@
         </div>
     </div>
     <div>
-        <metrics-table :data="tableData" @on-show-distribution="renderDistributionChart"></metrics-table>
-        <Modal v-model="distribution.show" width="640"
-                class-name="vertical-center-modal">
-            <p slot="header" style="text-align:center">
-                <span>耗时分布图</span>
-            </p>
-            <distribution-chart :data="distribution.data"></distribution-chart>
-            <div slot="footer">
-            </div>
-        </Modal>
+        <report-table :data="tableData"></report-table>
     </div>
-</div>    
+</div>
 </template>
 <script>
     import { distributionChart } from '../components/metricsCharts.vue';
-    import { metricsTable } from '../components/metricsTables.vue';
+    import { reportTable } from '../components/metricsTables.vue';
 
     export default {
         components: {
             'distribution-chart': distributionChart,
-            'metrics-table': metricsTable
+            'report-table': reportTable
         },
         data () {
             const $this = this;
@@ -87,17 +67,9 @@
                     begin: {
                         date: '',
                         time: ''
-                    },
-                    end: {
-                        date: '',
-                        time: ''
                     }
                 },
-                tableData: [],
-                distribution: {
-                    data: {},
-                    show: false
-                }
+                tableData: []
             }
         },
         computed: {
@@ -107,31 +79,19 @@
                 }
                 const { date, time } = this.dateTimeRange.begin;
                 return date + ' ' + time;
-            },
-            endDateTime() {
-                if (!this.dateTimeRange || !this.dateTimeRange.end) {
-                    return '';
-                }
-                const { date, time } = this.dateTimeRange.end;
-                return date + ' ' + time;
             }
         },
         mounted() {
-            this.changeDateTimeRange(Date.now() - 1000 * 60 * 10, Date.now());
+            this.changeDateTimeRange(Date.now() - 1000 * 60 * 10);
             this.renderTable();
         },
         methods: {
-            changeDateTimeRange(beginMilliSeconds, endMilliSeconds) {
+            changeDateTimeRange(beginMilliSeconds) {
                 const beginDateTime = this.$moment(beginMilliSeconds);
-                const endDateTime = this.$moment(endMilliSeconds);
                 this.dateTimeRange = {
                     begin: {
                         date: beginDateTime.format('YYYY-MM-DD'),
                         time: beginDateTime.format('HH:mm')
-                    },
-                    end: {
-                        date: endDateTime.format('YYYY-MM-DD'),
-                        time: endDateTime.format('HH:mm')
                     }
                 };
             },
@@ -146,8 +106,7 @@
                     d: 24 * 60 * 60 * 1000
                 };
                 const beginMilliSeconds = Date.now() - units[matchedResult[2]] * matchedResult[1];
-                const endMilliSeconds = Date.now();
-                this.changeDateTimeRange(beginMilliSeconds, endMilliSeconds);
+                this.changeDateTimeRange(beginMilliSeconds);
                 this.renderTable();
             },
             onBeginDateChange(date) {
@@ -160,32 +119,12 @@
                 this.shortcutButton = '';
                 this.renderTable();
             },
-            onEndDateChange(date) {
-                this.dateTimeRange.end.date = date;
-                this.shortcutButton = '';
-                this.renderTable();
-            },
-            onEndTimeChange(time) {
-                this.dateTimeRange.end.time = time;
-                this.shortcutButton = '';
-                this.renderTable();
-            },
             renderTable() {
                 const beginTime = this.$moment(this.beginDateTime, 'YYYY-MM-DD HH:mm').format('x');
-                const endTime = this.$moment(this.endDateTime, 'YYYY-MM-DD HH:mm').format('x');
-                const url = `/monitor/metrics/between/list.json?beginTime=${beginTime}&endTime=${endTime}`;
+                const url = `/monitor/metrics/recent/report.json?beginTime=${beginTime}`;
                 this.$http.get(url).then(resp => {
-                    this.tableData = resp.data.data;
+                    this.tableData = resp.data.data.details;
                 });
-            },
-            renderDistributionChart(data) {
-                const list = data.row.distributionList;
-                this.distribution.show = true;
-                this.distribution.data = {
-                    title: data.row.pathPattern,
-                    xData: list.map(entry => entry.key),
-                    yData: list.map(entry => entry.value)
-                };
             }
         }
     }
