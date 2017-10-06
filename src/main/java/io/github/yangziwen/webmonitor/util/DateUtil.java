@@ -11,6 +11,8 @@ public class DateUtil {
 
     public static final String DATE_PATTERN = "yyyy-MM-dd";
 
+    public static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
+
     private DateUtil() {}
 
     public static Date parseDateQuietly(String date, Locale locale, String pattern) {

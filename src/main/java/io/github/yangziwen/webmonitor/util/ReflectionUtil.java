@@ -6,8 +6,7 @@ import java.lang.reflect.Type;
 
 public class ReflectionUtil {
 
-	private ReflectionUtil() {
-	}
+	private ReflectionUtil() {}
 
 	@SuppressWarnings("rawtypes")
 	public static Type[] getSuperClassGenericTypes(Class clazz) {
@@ -26,7 +25,7 @@ public class ReflectionUtil {
 		}
 		return (Class<T>) params[index];
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static <T> T getFieldValue(Object entity, Field field) {
 		try {
@@ -37,7 +36,7 @@ public class ReflectionUtil {
 			return null;
 		}
 	}
-	
+
 	public static <T> void setFieldValue(Object entity, Field field, T value) {
 		try {
 			field.setAccessible(true);

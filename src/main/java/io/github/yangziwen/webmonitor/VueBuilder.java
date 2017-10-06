@@ -11,6 +11,8 @@ import org.apache.commons.lang3.ArrayUtils;
 
 public class VueBuilder {
 
+    private VueBuilder() {}
+
     public static void main(String[] args) {
         String basePath = System.getProperty("basedir");
         String frontendPath = FilenameUtils.concat(basePath, "src/main/frontend");

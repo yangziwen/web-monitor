@@ -25,6 +25,8 @@ public class MonitorController extends BaseController {
 
     private static final String DEFAULT_METRICS_SORT = "url_asc";
 
+    private MonitorController() {}
+
     public static void init() {
 
         // 从数据库加载全部url并装填到内存中

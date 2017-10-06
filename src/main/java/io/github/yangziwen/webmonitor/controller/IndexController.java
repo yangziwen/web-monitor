@@ -8,6 +8,8 @@ import spark.Spark;
 
 public class IndexController extends BaseController {
 
+    private IndexController() {}
+
     public static void init() {
 
         Spark.get("/index.json", (request, response) -> {

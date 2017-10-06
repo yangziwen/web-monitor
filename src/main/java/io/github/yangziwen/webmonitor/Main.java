@@ -10,6 +10,8 @@ import io.github.yangziwen.webmonitor.command.ServerCommand;
 
 public class Main {
 
+    private Main() {}
+
     public static void main(String[] args) {
 
         JCommander commander = new JCommander();

@@ -33,6 +33,8 @@ public class Server {
 
     public static final String DEFAULT_STATIC_LOCATION = "/static";
 
+    private Server() {}
+
     @Deprecated
     public static void main(String[] args) {
 
