@@ -57,7 +57,10 @@
         </div>
     </div>
     <div>
-        <metrics-table :data="tableData" @on-show-distribution="renderDistributionChart"></metrics-table>
+        <metrics-table :data="tableData"
+            @on-show-distribution="renderDistributionChart"
+            @on-show-request="renderRequestChart"
+        ></metrics-table>
         <Modal v-model="distribution.show" width="640"
                 class-name="vertical-center-modal">
             <p slot="header" style="text-align:center">
@@ -67,16 +70,27 @@
             <div slot="footer">
             </div>
         </Modal>
+        <Modal v-model="request.show" width="640"
+                class-name="vertical-center-modal">
+            <p slot="header" style="text-align:center">
+                <span>请求分布图</span>
+            </p>
+            <request-chart :data="request.data"></request-chart>
+            <div slot="footer">
+            </div>
+        </Modal>
     </div>
 </div>    
 </template>
 <script>
     import { distributionChart } from '../components/metricsCharts.vue';
+    import { requestChart } from '../components/metricsCharts.vue';
     import { metricsTable } from '../components/metricsTables.vue';
 
     export default {
         components: {
             'distribution-chart': distributionChart,
+            'request-chart': requestChart,
             'metrics-table': metricsTable
         },
         data () {
@@ -95,6 +109,10 @@
                 },
                 tableData: [],
                 distribution: {
+                    data: {},
+                    show: false
+                },
+                request: {
                     data: {},
                     show: false
                 }
@@ -182,10 +200,26 @@
                 const list = data.row.distributionList;
                 this.distribution.show = true;
                 this.distribution.data = {
-                    title: data.row.pathPattern,
+                    title: data.row.urlPattern,
                     xData: list.map(entry => entry.key),
                     yData: list.map(entry => entry.value)
                 };
+            },
+            renderRequestChart(data) {
+                const beginTime = this.$moment(this.beginDateTime, 'YYYY-MM-DD HH:mm').format('x');
+                const endTime = this.$moment(this.endDateTime, 'YYYY-MM-DD HH:mm').format('x');
+                const urlPattern = data.row.urlPattern;
+                const url = `/monitor/metrics/url/list.json?beginTime=${beginTime}&endTime=${endTime}&url=${encodeURIComponent(urlPattern)}`
+                this.$http.get(url).then(resp => {
+                    const list = resp.data.data;
+                    this.request.data = {
+                        title: data.row.urlPattern,
+                        xData: list.map(entry => this.$moment(entry.endTime).format('YYYY/MM/DD HH:mm')),
+                        yData: list.map(entry => entry.cnt)
+                    };
+                    this.request.show = true;
+                    console.dir(this.request.data);
+                });
             }
         }
     }

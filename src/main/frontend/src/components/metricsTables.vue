@@ -56,6 +56,11 @@
                                 },
                                 style: {
                                     'margin-left': '-10px'
+                                },
+                                on: {
+                                    click: () => {
+                                        this.$emit('on-show-request', params);
+                                    }
                                 }
                             }, '请求分布'),
                             h('Button', {
