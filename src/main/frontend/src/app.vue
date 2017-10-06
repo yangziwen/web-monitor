@@ -62,11 +62,11 @@
             <div :style="{width: leftMenuWidth + 'px'}" class="layout-menu-left">
                 <Menu :active-name="activeName" theme="dark" width="auto" @on-select="toPage">
                     <Menu-item name="/metrics">
-                        <Icon type="flash" :size="iconSize"></Icon>
+                        <Icon type="eye" :size="iconSize"></Icon>
                         <span class="layout-text">接口监控</span>
                     </Menu-item>
                     <Menu-item name="/report">
-                        <Icon type="bug" :size="iconSize"></Icon>
+                        <Icon type="alert-circled" :size="iconSize"></Icon>
                         <span class="layout-text">问题报警</span>
                     </Menu-item>
                 </Menu>
