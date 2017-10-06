@@ -218,7 +218,6 @@
                         yData: list.map(entry => entry.cnt)
                     };
                     this.request.show = true;
-                    console.dir(this.request.data);
                 });
             }
         }

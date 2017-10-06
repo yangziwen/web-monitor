@@ -39,7 +39,7 @@ public class MonitorService {
 
     public static List<UrlMetrics> getUrlMetricsResultsBetween(Date beginTime, Date endTime) {
         QueryMap params = new QueryMap()
-                .param("beginTime__ge", beginTime)
+                .param("endTime__ge", beginTime)
                 .param("endTime__le", endTime);
         return urlMetricsResultRepo.list(params).stream()
                 .collect(Collectors.groupingBy(UrlMetricsResult::getUrl))
@@ -69,7 +69,7 @@ public class MonitorService {
 
     public static List<UrlMetrics> getUrlMetricsResultsOfUrl(String url, Date beginTime, Date endTime) {
         QueryMap params = new QueryMap()
-                .param("beginTime__ge", beginTime)
+                .param("endTime__ge", beginTime)
                 .param("endTime__le", endTime)
                 .param("url", url)
                 .orderByAsc("endTime");
