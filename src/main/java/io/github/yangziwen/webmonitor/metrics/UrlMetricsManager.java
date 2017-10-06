@@ -3,6 +3,7 @@ package io.github.yangziwen.webmonitor.metrics;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -60,7 +61,7 @@ public class UrlMetricsManager {
         return new ArrayList<>(urlMetricsMap.values());
     }
 
-    // 配置一个定时任务，每10分钟收集一次
+    // 配置一个定时任务，每10分钟收集一次(global.config中配置)
     public synchronized static void harvestMetricsResults() {
         Date previousTime = metricsRenewTime;
         Date currentTime = new Date();
@@ -72,6 +73,7 @@ public class UrlMetricsManager {
         }
         List<UrlMetricsResult> results = metricsList.stream()
                 .map(metrics -> UrlMetricsResult.from(metrics, previousTime, currentTime))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         MonitorService.batchSaveUrlMetricsResults(results);
     }

@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.github.yangziwen.webmonitor.metrics.UrlMetricsManager;
 import io.github.yangziwen.webmonitor.metrics.UrlPatternManager;
 import io.github.yangziwen.webmonitor.metrics.bean.NginxAccess;
+import io.github.yangziwen.webmonitor.metrics.bean.Report;
 import io.github.yangziwen.webmonitor.metrics.bean.UrlMetrics;
 import io.github.yangziwen.webmonitor.service.MonitorService;
 import spark.Spark;
@@ -51,25 +52,59 @@ public class MonitorController extends BaseController {
         // 获取每个接口最近n次请求的统计结果
         Spark.get("/monitor/metrics/latest/list.json", (request, response) -> {
             response.type(CONTENT_TYPE_JSON);
-            int n = NumberUtils.toInt(request.queryParams("n"), 64);
+            int n = NumberUtils.toInt(request.queryParams("n"), 128);
             String sort = request.queryParamOrDefault("sort", DEFAULT_METRICS_SORT);
             List<UrlMetrics> list = UrlMetricsManager.getLatestUrlMectricsList(n);
             list.sort(createComparator(sort));
             return OK.newResult().data(list);
         }, JSON::toJSONString);
 
-        // 获取指定时间端内的统计结果
+        // 获取指定时间段内按url的统计结果汇总
         Spark.get("/monitor/metrics/between/list.json", (request, response) -> {
             response.type(CONTENT_TYPE_JSON);
             long beginTime = NumberUtils.toLong(request.queryParams("beginTime"));
             long endTime = NumberUtils.toLong(request.queryParams("endTime"));
-            if (endTime == 0L) {
-                endTime = System.currentTimeMillis();
+            if (beginTime == 0L || endTime == 0L) {
+                return BAD_REQUEST.newResult().message("both beginTime and endTime are required");
             }
             String sort = request.queryParamOrDefault("sort", DEFAULT_METRICS_SORT);
             List<UrlMetrics> list = MonitorService.getUrlMetricsResultsBetween(new Date(beginTime), new Date(endTime));
             list.sort(createComparator(sort));
             return OK.newResult().data(list);
+        }, JSON::toJSONString);
+
+        // 获取指定时间段内指定url的统计结果详情
+        Spark.get("/monitor/metrics/url/list.json", (request, response) -> {
+            response.type(CONTENT_TYPE_JSON);
+            String url = request.queryParams("url");
+            long beginTime = NumberUtils.toLong(request.queryParams("beginTime"));
+            long endTime = NumberUtils.toLong(request.queryParams("endTime"));
+            if (beginTime == 0L || endTime == 0L) {
+                return BAD_REQUEST.newResult().message("both beginTime and endTime are required");
+            }
+            String sort = request.queryParamOrDefault("sort", DEFAULT_METRICS_SORT);
+            List<UrlMetrics> list = MonitorService.getUrlMetricsResultsOfUrl(url, new Date(beginTime), new Date(endTime));
+            list.sort(createComparator(sort));
+            return OK.newResult().data(list);
+        }, JSON::toJSONString);
+
+        // 基于最近n次请求结果，获取报告
+        Spark.get("/monitor/metrics/latest/report.json", (request, response) -> {
+            response.type(CONTENT_TYPE_JSON);
+            int n = NumberUtils.toInt(request.queryParams("n"), 128);
+            List<UrlMetrics> list = UrlMetricsManager.getLatestUrlMectricsList(n);
+            return OK.newResult().data(new Report(list));
+        }, JSON::toJSONString);
+
+        // 基于最近一段时间的请求结果，获取报告
+        Spark.get("/monitor/metrics/recent/report.json", (request, response) -> {
+            response.type(CONTENT_TYPE_JSON);
+            long beginTime = NumberUtils.toLong(request.queryParams("beginTime"));
+            if (beginTime == 0L) {
+                return BAD_REQUEST.newResult().message("beginTime is required");
+            }
+            List<UrlMetrics> list = MonitorService.getRecentUrlMetricsResults(new Date(beginTime));
+            return OK.newResult().data(new Report(list));
         }, JSON::toJSONString);
 
     }

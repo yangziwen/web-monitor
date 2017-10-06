@@ -114,6 +114,15 @@ public class Distribution {
         return merge(parse(value));
     }
 
+    public long getSlowCnt(int threshold) {
+        long slowCnt = 0L;
+        long n = Arrays.stream(MILLISECOND_CEILS).filter(time -> time > threshold).count();
+        for (int i = 1, len = timeSlots.length; i <= n + 1; i++) {
+            slowCnt += timeSlots[len - i].get();
+        }
+        return slowCnt;
+    }
+
     public static Distribution parse(String value) {
         if (StringUtils.isBlank(value)) {
             return null;
