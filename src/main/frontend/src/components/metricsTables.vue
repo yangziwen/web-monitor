@@ -50,7 +50,7 @@
                                     size: 'small',
                                 },
                                 style: {
-                                    'margin-left': '-20px'
+                                    'margin-left': '-10px'
                                 }
                             }, '请求分布'),
                             h('Button', {

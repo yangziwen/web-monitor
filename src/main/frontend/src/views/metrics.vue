@@ -18,18 +18,52 @@
 <template>
 <div class="metrics-area">
     <div id="date-picker-wrapper">
-        <default-date-picker :initRange="dateRange"
-            @on-change="changeDateRange"></default-date-picker>
-        </Date-picker>
+        from:
+        <Date-picker type="date" placeholder="请选择日期"
+            :value="dateTimeRange.begin.date" format="yyyy-MM-dd"
+            style="width: 120px; display: inline-block;"
+            @on-change="onBeginDateChange"
+        ></Date-picker>
+        <Time-picker type="time" placeholder="选择时间"
+            :value="dateTimeRange.begin.time" format="HH:mm"
+            style="width: 100px; display: inline-block;"
+            @on-change="onBeginTimeChange"
+        ></Time-picker>
+        &nbsp;to:
+        <Date-picker type="date" placeholder="请选择日期"
+            :value="dateTimeRange.end.date" format="yyyy-MM-dd"
+            style="width: 120px; display: inline-block;"
+            @on-change="onEndDateChange"
+        ></Date-picker>
+        <Time-picker type="time" placeholder="选择时间"
+            :value="dateTimeRange.end.time" format="HH:mm"
+            style="width: 100px; display: inline-block;"
+            @on-change="onEndTimeChange"
+        ></Time-picker>
+        &nbsp;&nbsp;
+        <div style="margin-top: 10px; display: inline-block;">
+        最近
+        <RadioGroup v-model="shortcutButton" type="button"
+            @on-change="onShortcutButtonChange">
+            <Radio label="10m"></Radio>
+            <Radio label="30m"></Radio>
+            <Radio label="1h"></Radio>
+            <Radio label="2h"></Radio>
+            <Radio label="6h"></Radio>
+            <Radio label="12h"></Radio>
+            <Radio label="1d"></Radio>
+            <Radio label="7d"></Radio>
+        </RadioGroup>
+        </div>
     </div>
     <div>
         <metrics-table :data="tableData" @on-show-distribution="renderDistributionChart"></metrics-table>
-        <Modal v-model="showDistributionChart" width="640"
+        <Modal v-model="distribution.show" width="640"
                 class-name="vertical-center-modal">
             <p slot="header" style="text-align:center">
-                <span>请求时间分布图</span>
+                <span>耗时分布图</span>
             </p>
-            <distribution-chart :data="chartData"></distribution-chart>
+            <distribution-chart :data="distribution.data"></distribution-chart>
             <div slot="footer">
             </div>
         </Modal>
@@ -50,37 +84,106 @@
         data () {
             const $this = this;
             return {
-                dateRange: $this.getInitDateRange(),
+                shortcutButton: '10m',
+                dateTimeRange: {
+                    begin: {
+                        date: '',
+                        time: ''
+                    },
+                    end: {
+                        date: '',
+                        time: ''
+                    }
+                },
                 tableData: [],
-                chartData: {},
-                showDistributionChart: false
+                distribution: {
+                    data: {},
+                    show: false
+                }
+            }
+        },
+        computed: {
+            beginDateTime() {
+                if (!this.dateTimeRange || !this.dateTimeRange.begin) {
+                    return '';
+                }
+                const { date, time } = this.dateTimeRange.begin;
+                return date + ' ' + time;
+            },
+            endDateTime() {
+                if (!this.dateTimeRange || !this.dateTimeRange.end) {
+                    return '';
+                }
+                const { date, time } = this.dateTimeRange.end;
+                return date + ' ' + time;
             }
         },
         mounted() {
-            this.renderTable(...this.dateRange);
+            this.changeDateTimeRange(Date.now() - 1000 * 60 * 10, Date.now());
+            this.renderTable();
         },
         methods: {
-            getInitDateRange() {
-                const startDate = this.$moment().subtract(7, 'd').format('YYYY-MM-DD');
-                const endDate = this.$moment().format('YYYY-MM-DD');
-                return [startDate, endDate];
+            changeDateTimeRange(beginMilliSeconds, endMilliSeconds) {
+                const beginDateTime = this.$moment(beginMilliSeconds);
+                const endDateTime = this.$moment(endMilliSeconds);
+                this.dateTimeRange = {
+                    begin: {
+                        date: beginDateTime.format('YYYY-MM-DD'),
+                        time: beginDateTime.format('HH:mm')
+                    },
+                    end: {
+                        date: endDateTime.format('YYYY-MM-DD'),
+                        time: endDateTime.format('HH:mm')
+                    }
+                };
             },
-            changeDateRange(dates) {
-                this.dateRange = dates;
-                this.renderTable(...this.dateRange);
+            onShortcutButtonChange(value) {
+                const matchedResult = /(\d+)([mhd])/.exec(value);
+                if (!matchedResult) {
+                    return;
+                }
+                const units = {
+                    m: 60 * 1000,
+                    h: 60 * 60 * 1000,
+                    d: 24 * 60 * 60 * 1000
+                };
+                const beginMilliSeconds = Date.now() - units[matchedResult[2]] * matchedResult[1];
+                const endMilliSeconds = Date.now();
+                this.changeDateTimeRange(beginMilliSeconds, endMilliSeconds);
+                this.renderTable();
             },
-            renderTable(startDate, endDate) {
-                const beginTime = this.$moment(startDate, 'YYYY-MM-DD').format('x');
-                const endTime = this.$moment(endDate, 'YYYY-MM-DD').format('x');
+            onBeginDateChange(date) {
+                this.dateTimeRange.begin.date = date;
+                this.shortcutButton = '';
+                this.renderTable();
+            },
+            onBeginTimeChange(time) {
+                this.dateTimeRange.begin.time = time;
+                this.shortcutButton = '';
+                this.renderTable();
+            },
+            onEndDateChange(date) {
+                this.dateTimeRange.end.date = date;
+                this.shortcutButton = '';
+                this.renderTable();
+            },
+            onEndTimeChange(time) {
+                this.dateTimeRange.end.time = time;
+                this.shortcutButton = '';
+                this.renderTable();
+            },
+            renderTable() {
+                const beginTime = this.$moment(this.beginDateTime, 'YYYY-MM-DD HH:mm').format('x');
+                const endTime = this.$moment(this.endDateTime, 'YYYY-MM-DD HH:mm').format('x');
                 const url = `/monitor/metrics/between/list.json?beginTime=${beginTime}&endTime=${endTime}`;
                 this.$http.get(url).then(resp => {
                     this.tableData = resp.data.data;
-                })
+                });
             },
             renderDistributionChart(data) {
-                this.showDistributionChart = true;
                 const list = data.row.distributionList;
-                this.chartData = {
+                this.distribution.show = true;
+                this.distribution.data = {
                     title: data.row.pathPattern,
                     xData: list.map(entry => entry.key),
                     yData: list.map(entry => entry.value)
