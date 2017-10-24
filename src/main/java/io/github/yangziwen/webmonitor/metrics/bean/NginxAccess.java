@@ -1,5 +1,6 @@
 package io.github.yangziwen.webmonitor.metrics.bean;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -20,7 +21,9 @@ public class NginxAccess {
             "/rest/review",
             "/rest/files",
             "/rest/search",
-            "/rest/user");
+            "/rest/user",
+            "/git",
+            "/review");
 
     private String url;
 
@@ -112,22 +115,27 @@ public class NginxAccess {
             access.setMethod(accessObj.getString("method"));
             access.setCode(NumberUtils.toInt(accessObj.getString("response_code")));
             access.setUpstream(accessObj.getString("upstream"));
-            access.setTimestamp(DateUtil.parseDateQuietly(accessObj.getString("timestamp"), Locale.US, NGINX_TIMESTAMP_PATTERN).getTime());
+            access.setTimestamp(parseTimestampToDate(accessObj.getString("timestamp")).getTime());
             access.setResponseTime(new Double(NumberUtils.toDouble(accessObj.getString("response_time")) * 1000).intValue());
             access.setReferrer(accessObj.getString("referrer"));
-            for (String prefix : NGINX_URL_PREFIX_LIST) {
-                if (access.getUrl().startsWith(prefix)) {
-                    access.setBackendUrl(StringUtils.replaceOnce(access.getUrl(), prefix, ""));
-                    break;
-                }
-            }
-            if (StringUtils.isBlank(access.getBackendUrl())) {
-                access.setBackendUrl(access.getUrl());
-            }
+            access.setBackendUrl(extractBackendUrl(access.getUrl()));
             return access;
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static String extractBackendUrl(String url) {
+        for (String prefix : NGINX_URL_PREFIX_LIST) {
+            if (url.startsWith(prefix)) {
+                return StringUtils.replaceOnce(url, prefix, "");
+            }
+        }
+        return url;
+    }
+
+    public static Date parseTimestampToDate(String timestamp) {
+        return DateUtil.parseDateQuietly(timestamp, Locale.US, NGINX_TIMESTAMP_PATTERN);
     }
 
 }
