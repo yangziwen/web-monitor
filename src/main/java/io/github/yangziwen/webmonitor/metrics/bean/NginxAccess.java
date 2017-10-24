@@ -126,6 +126,9 @@ public class NginxAccess {
     }
 
     public static String extractBackendUrl(String url) {
+        if (StringUtils.isBlank(url)) {
+            return url;
+        }
         for (String prefix : NGINX_URL_PREFIX_LIST) {
             if (url.startsWith(prefix)) {
                 return StringUtils.replaceOnce(url, prefix, "");

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +82,12 @@ public class UrlPatternManager {
             return path;
         }
 
-        String prefix = StringUtils.split(path, "/")[0];
+        String[] array = StringUtils.split(path, "/");
+        if (ArrayUtils.isEmpty(array)) {
+            return PATTERN_UNKNOWN;
+        }
+
+        String prefix = array[0];
 
         Collection<String> urlPatterns = Collections.emptySet();
         if (prefixKeyedUrlMap.containsKey(prefix)) {
