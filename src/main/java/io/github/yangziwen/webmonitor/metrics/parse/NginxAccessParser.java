@@ -28,15 +28,16 @@ public class NginxAccessParser extends Parser {
     }
 
     public NginxAccess toNginxAccess() {
-        NginxAccess access = new NginxAccess();
-        access.setUrl(result(UrlParser.class));
-        access.setTimestamp(NginxAccess.parseTimestampToDate(result(TimestampParser.class)).getTime());
-        access.setCode(NumberUtils.toInt(result(ResponseStatusParser.class)));
-        access.setMethod(result(RequestMethodParser.class));
+        String url = result(UrlParser.class);
         Double responseTime = NumberUtils.toDouble(result(ResponseTimeParser.class)) * 1000;
-        access.setResponseTime(responseTime.intValue());
-        access.setBackendUrl(NginxAccess.extractBackendUrl(access.getUrl()));
-        return access;
+        return NginxAccess.builder()
+            .url(url)
+            .timestamp(NginxAccess.parseTimestampToDate(result(TimestampParser.class)).getTime())
+            .code(NumberUtils.toInt(result(ResponseStatusParser.class)))
+            .method(result(RequestMethodParser.class))
+            .responseTime(responseTime.intValue())
+            .backendUrl(NginxAccess.extractBackendUrl(url))
+            .build();
     }
 
     static class IpParser extends Parser {

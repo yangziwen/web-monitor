@@ -11,7 +11,15 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 
 import io.github.yangziwen.webmonitor.util.DateUtil;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class NginxAccess {
 
     private static final String NGINX_TIMESTAMP_PATTERN = "dd/MMM/yyyy:HH:mm:ss Z";
@@ -41,85 +49,22 @@ public class NginxAccess {
 
     private String upstream;
 
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getBackendUrl() {
-        return backendUrl;
-    }
-
-    public void setBackendUrl(String backendUrl) {
-        this.backendUrl = backendUrl;
-    }
-
-    public String getMethod() {
-        return method;
-    }
-
-    public void setMethod(String method) {
-        this.method = method;
-    }
-
-    public String getReferrer() {
-        return referrer;
-    }
-
-    public void setReferrer(String referrer) {
-        this.referrer = referrer;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public int getResponseTime() {
-        return responseTime;
-    }
-
-    public void setResponseTime(int responseTime) {
-        this.responseTime = responseTime;
-    }
-
-    public String getUpstream() {
-        return upstream;
-    }
-
-    public void setUpstream(String upstream) {
-        this.upstream = upstream;
-    }
-
     public static NginxAccess fromJsonObject(JSONObject accessObj) {
         if (accessObj == null) {
             return null;
         }
         try {
-            NginxAccess access = new NginxAccess();
-            access.setUrl(accessObj.getString("url"));
-            access.setMethod(accessObj.getString("method"));
-            access.setCode(NumberUtils.toInt(accessObj.getString("response_code")));
-            access.setUpstream(accessObj.getString("upstream"));
-            access.setTimestamp(parseTimestampToDate(accessObj.getString("timestamp")).getTime());
-            access.setResponseTime(new Double(NumberUtils.toDouble(accessObj.getString("response_time")) * 1000).intValue());
-            access.setReferrer(accessObj.getString("referrer"));
-            access.setBackendUrl(extractBackendUrl(access.getUrl()));
-            return access;
+            String url = accessObj.getString("url");
+            return NginxAccess.builder()
+                .url(url)
+                .method(accessObj.getString("method"))
+                .code(NumberUtils.toInt(accessObj.getString("response_code")))
+                .upstream(accessObj.getString("upstream"))
+                .timestamp(parseTimestampToDate(accessObj.getString("timestamp")).getTime())
+                .responseTime(new Double(NumberUtils.toDouble(accessObj.getString("response_time")) * 1000).intValue())
+                .referrer(accessObj.getString("referrer"))
+                .backendUrl(extractBackendUrl(url))
+                .build();
         } catch (Exception e) {
             return null;
         }

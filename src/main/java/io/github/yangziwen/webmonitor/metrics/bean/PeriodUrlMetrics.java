@@ -3,7 +3,11 @@ package io.github.yangziwen.webmonitor.metrics.bean;
 import java.util.Date;
 
 import io.github.yangziwen.webmonitor.model.UrlMetricsResult;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class PeriodUrlMetrics extends UrlMetrics {
 
     public PeriodUrlMetrics(UrlMetricsResult result) {
@@ -16,22 +20,5 @@ public class PeriodUrlMetrics extends UrlMetrics {
     private Date beginTime;
 
     private Date endTime;
-
-    public Date getBeginTime() {
-        return beginTime;
-    }
-
-    public void setBeginTime(Date beginTime) {
-        this.beginTime = beginTime;
-    }
-
-    public Date getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(Date endTime) {
-        this.endTime = endTime;
-    }
-
 
 }

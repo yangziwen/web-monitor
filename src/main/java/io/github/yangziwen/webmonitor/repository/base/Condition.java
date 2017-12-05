@@ -2,6 +2,11 @@ package io.github.yangziwen.webmonitor.repository.base;
 
 import org.apache.commons.lang3.StringUtils;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
 public class Condition {
 
     private String key;
@@ -11,45 +16,6 @@ public class Condition {
     private String placeholder;
 
     private String fullKey;
-
-    public Condition(String key, String oper, String placeholder, String fullKey) {
-        this.key = key;
-        this.oper = oper;
-        this.placeholder = placeholder;
-        this.fullKey = fullKey;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getOper() {
-        return oper;
-    }
-
-    public void setOper(String oper) {
-        this.oper = oper;
-    }
-
-    public String getPlaceholder() {
-        return placeholder;
-    }
-
-    public void setPlaceholder(String placeholder) {
-        this.placeholder = placeholder;
-    }
-
-    public String getFullKey() {
-        return fullKey;
-    }
-
-    public void setFullKey(String fullKey) {
-        this.fullKey = fullKey;
-    }
 
     public String toSql() {
         return key + oper + placeholder;

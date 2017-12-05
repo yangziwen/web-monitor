@@ -1,9 +1,9 @@
 package io.github.yangziwen.webmonitor.repository.base;
 
-public class RepoKeys {
+import lombok.NoArgsConstructor;
 
-	private RepoKeys() {
-	}
+@NoArgsConstructor
+public class RepoKeys {
 
 	public static final String OR = "__or";
 

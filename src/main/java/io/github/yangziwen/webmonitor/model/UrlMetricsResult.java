@@ -7,7 +7,15 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import io.github.yangziwen.webmonitor.metrics.bean.UrlMetrics;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "url_metrics_result")
 public class UrlMetricsResult {
 
@@ -42,101 +50,21 @@ public class UrlMetricsResult {
     @Column
     private String distribution;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public Date getBeginTime() {
-        return beginTime;
-    }
-
-    public void setBeginTime(Date beginTime) {
-        this.beginTime = beginTime;
-    }
-
-    public Date getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(Date endTime) {
-        this.endTime = endTime;
-    }
-
-    public Long getCnt() {
-        return cnt;
-    }
-
-    public void setCnt(Long cnt) {
-        this.cnt = cnt;
-    }
-
-    public Long getErrorCnt() {
-        return errorCnt;
-    }
-
-    public void setErrorCnt(Long errorCnt) {
-        this.errorCnt = errorCnt;
-    }
-
-    public Long getSum() {
-        return sum;
-    }
-
-    public void setSum(Long sum) {
-        this.sum = sum;
-    }
-
-    public Integer getMax() {
-        return max;
-    }
-
-    public void setMax(Integer max) {
-        this.max = max;
-    }
-
-    public Integer getMin() {
-        return min;
-    }
-
-    public void setMin(Integer min) {
-        this.min = min;
-    }
-
-    public String getDistribution() {
-        return distribution;
-    }
-
-    public void setDistribution(String distribution) {
-        this.distribution = distribution;
-    }
-
     public static UrlMetricsResult from(UrlMetrics metrics, Date beginTime, Date endTime) {
         if (metrics == null) {
             return null;
         }
-        UrlMetricsResult result = new UrlMetricsResult();
-        result.setUrl(metrics.getUrlPattern());
-        result.setBeginTime(beginTime);
-        result.setEndTime(endTime);
-        result.setCnt(metrics.getCnt());
-        result.setErrorCnt(metrics.getErrorCnt());
-        result.setSum(metrics.getSum());
-        result.setMax(metrics.getMax());
-        result.setMin(metrics.getMin());
-        result.setDistribution(metrics.getDistribution().toString());
-        return result;
+        return UrlMetricsResult.builder()
+            .url(metrics.getUrlPattern())
+            .beginTime(beginTime)
+            .endTime(endTime)
+            .cnt(metrics.getCnt())
+            .errorCnt(metrics.getErrorCnt())
+            .sum(metrics.getSum())
+            .max(metrics.getMax())
+            .min(metrics.getMin())
+            .distribution(metrics.getDistribution().toString())
+            .build();
     }
 
 

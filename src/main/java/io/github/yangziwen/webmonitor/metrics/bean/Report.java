@@ -7,6 +7,9 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 
+import lombok.Getter;
+
+@Getter
 public class Report {
 
     private static final int SLOW_TIME_THRESHOLD = 1500;
@@ -27,14 +30,7 @@ public class Report {
                 ? Status.OK : Status.WARNING;
     }
 
-    public Status getStatus() {
-        return status;
-    }
-
-    public List<Detail> getDetails() {
-        return details;
-    }
-
+    @Getter
     public static class Detail {
 
         private Status status;
@@ -63,26 +59,6 @@ public class Report {
             else {
                 status = Status.OK;
             }
-        }
-
-        public Status getStatus() {
-            return status;
-        }
-
-        public String getUrl() {
-            return url;
-        }
-
-        public Long getCnt() {
-            return cnt;
-        }
-
-        public Double getErrorRatio() {
-            return errorRatio;
-        }
-
-        public Double getSlowRatio() {
-            return slowRatio;
         }
 
     }

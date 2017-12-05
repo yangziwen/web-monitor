@@ -1,16 +1,13 @@
 package io.github.yangziwen.webmonitor.repository.base;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 public class VarArgsSQLFunction {
 
 	private final String begin;
 	private final String sep;
 	private final String end;
-
-	public VarArgsSQLFunction(String begin, String sep, String end) {
-		this.begin = begin;
-		this.sep = sep;
-		this.end = end;
-	}
 
 	public String render(Object... args) {
 		StringBuilder buf = new StringBuilder().append(begin);

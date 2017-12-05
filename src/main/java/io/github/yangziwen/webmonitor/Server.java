@@ -11,8 +11,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
 
@@ -21,11 +19,11 @@ import io.github.yangziwen.webmonitor.controller.MonitorController;
 import io.github.yangziwen.webmonitor.schedule.TaskConfig;
 import io.github.yangziwen.webmonitor.util.GlobalConfig;
 import it.sauronsoftware.cron4j.Scheduler;
+import lombok.extern.slf4j.Slf4j;
 import spark.Spark;
 
+@Slf4j
 public class Server {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
 
     public static final String DEFAULT_HOST = "0.0.0.0";
 
@@ -88,7 +86,7 @@ public class Server {
 
         for (TaskConfig task : GlobalConfig.task.tasks) {
             task.schedule(scheduler);
-            LOGGER.info("scheduled task: {}", JSON.toJSONString(task));
+            log.info("scheduled task: {}", JSON.toJSONString(task));
         }
 
         scheduler.start();
@@ -117,11 +115,11 @@ public class Server {
 
     private static void checkPortAvailable(String host , int port) {
         if (!isPortAvailable(DEFAULT_HOST, port)) {
-            LOGGER.error("The port {} is not available, press 'Enter' to exit", port);
+            log.error("The port {} is not available, press 'Enter' to exit", port);
             try (Reader reader = new InputStreamReader(System.in)) {
                 reader.read();
             } catch (IOException e) {
-                LOGGER.error("Error happened when waiting user's input");
+                log.error("Error happened when waiting user's input");
             } finally {
                 System.exit(1);
             }
