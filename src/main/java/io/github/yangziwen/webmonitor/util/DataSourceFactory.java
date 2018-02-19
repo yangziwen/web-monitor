@@ -4,6 +4,8 @@ import javax.sql.DataSource;
 
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 
+import io.github.yangziwen.webmonitor.GlobalConfig;
+
 public class DataSourceFactory {
 
 	private static final DataSource DATA_SOURCE = initDataSource();

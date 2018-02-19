@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.typesafe.config.Config;
 
-import io.github.yangziwen.webmonitor.util.GlobalConfig;
+import io.github.yangziwen.webmonitor.GlobalConfig;
 import it.sauronsoftware.cron4j.Scheduler;
 
 public class TaskConfig {

@@ -1,4 +1,4 @@
-package io.github.yangziwen.webmonitor.util;
+package io.github.yangziwen.webmonitor;
 
 import static io.github.yangziwen.webmonitor.util.ConfigUtil.getConfig;
 import static io.github.yangziwen.webmonitor.util.ConfigUtil.getIntOrDefault;

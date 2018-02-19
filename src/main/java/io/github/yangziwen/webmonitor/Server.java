@@ -17,7 +17,6 @@ import com.alibaba.fastjson.JSON;
 import io.github.yangziwen.webmonitor.controller.IndexController;
 import io.github.yangziwen.webmonitor.controller.MonitorController;
 import io.github.yangziwen.webmonitor.schedule.TaskConfig;
-import io.github.yangziwen.webmonitor.util.GlobalConfig;
 import it.sauronsoftware.cron4j.Scheduler;
 import lombok.extern.slf4j.Slf4j;
 import spark.Spark;
