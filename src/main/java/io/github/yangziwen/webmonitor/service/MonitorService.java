@@ -4,6 +4,7 @@ import static io.github.yangziwen.webmonitor.util.DataSourceFactory.getDataSourc
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -76,6 +77,10 @@ public class MonitorService {
         return urlMetricsResultRepo.list(params).stream()
                 .map(result -> new PeriodUrlMetrics(result))
                 .collect(Collectors.toList());
+    }
+
+    public static void deleteUrlMetricsResultsByParams(Map<String, Object> params) {
+        urlMetricsResultRepo.deleteByParams(params);
     }
 
     public static void batchSaveUrlMetricsResults(List<UrlMetricsResult> results) {

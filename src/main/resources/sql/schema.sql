@@ -20,6 +20,7 @@ CREATE TABLE `url_metrics_result` (
     `begin_time` DATETIME,
     `end_time` DATETIME,
     KEY idx_begin_end_time(`begin_time`, `end_time`),
+    KEY idx_end_begin_time(`end_time`, `begin_time`),
     KEY idx_url(`url`)
 ) engine=InnoDB DEFAULT CHARSET=utf8;
 

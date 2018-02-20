@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.eclipse.jetty.util.BlockingArrayQueue;
 
@@ -33,7 +32,9 @@ import io.github.yangziwen.webmonitor.metrics.bean.NginxAccess;
 import io.github.yangziwen.webmonitor.metrics.bean.UrlMetrics;
 import io.github.yangziwen.webmonitor.metrics.parse.NginxAccessParser;
 import io.github.yangziwen.webmonitor.model.UrlMetricsResult;
+import io.github.yangziwen.webmonitor.repository.base.QueryMap;
 import io.github.yangziwen.webmonitor.service.MonitorService;
+import io.github.yangziwen.webmonitor.util.Progress;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -99,6 +100,8 @@ public class ImportDataCommand implements Command {
 
         private final int threadNum;
 
+        private Date fromTime;
+
         private Date toTime;
 
         private long interval;
@@ -119,8 +122,11 @@ public class ImportDataCommand implements Command {
 
         private ConcurrentHashMap<String, UrlMetrics> metricsMap = new ConcurrentHashMap<>();
 
+        private Progress progress;
+
         public Processor(List<File> files, int threadNum, Date fromTime, Date toTime, long interval) {
             this.threadNum = threadNum;
+            this.fromTime = fromTime;
             this.toTime = toTime;
             this.interval = interval;
             this.beginTime = fromTime;
@@ -135,21 +141,18 @@ public class ImportDataCommand implements Command {
                 return thread;
             }).collect(Collectors.toList());
             fromQueue.addAll(files.stream().map(ReaderContext::new).collect(Collectors.toList()));
+            progress = new Progress("import data", toTime.getTime() - fromTime.getTime());
         }
 
         private void consumeReader() {
             while (!finished.get()) {
                 ReaderContext context = fromQueue.poll();
                 if (context == null) {
-                    blockThread();
+                    blockWorkerThread();
                     continue;
                 }
                 try {
-                    String timePattern = "yyyy-MM-dd HH:mm";
-                    String beginTimeStr = DateFormatUtils.format(beginTime, timePattern);
-                    String endTimeStr = DateFormatUtils.format(endTime, timePattern);
                     process(context);
-                    log.info("finished to process file[{}] in the range of [{} - {}]", context.getFile().getName(), beginTimeStr, endTimeStr);
                 } catch (IOException e) {
                     log.error("error happend when process file {}", context.getFile(), e);
                 }
@@ -172,7 +175,7 @@ public class ImportDataCommand implements Command {
             while ((line = context.getReader().readLine()) != null) {
                 parser.parse(line);
                 access = parser.toNginxAccess();
-                if (access.getTimestamp() < beginTime.getTime()) {
+                if (access.getTimestamp() <= beginTime.getTime()) {
                     continue;
                 }
                 if (access.getTimestamp() > endTime.getTime()) {
@@ -188,9 +191,10 @@ public class ImportDataCommand implements Command {
         public void run() {
             threads.forEach(Thread::start);
             while (true) {
-                ImportDataCommand.waitQuietly(latch);
-                persistMetricsResults(beginTime, endTime, metricsMap);
-                metricsMap = new ConcurrentHashMap<>();
+                blockMainThread();
+                ImportDataCommand.persistMetricsResults(beginTime, endTime, metricsMap);
+                this.progress.update(this.endTime.getTime() - this.fromTime.getTime());
+                metricsMap.clear();
                 beginTime = endTime;
                 endTime = new Date(beginTime.getTime() + interval);
                 if (beginTime.getTime() >= toTime.getTime()) {
@@ -201,10 +205,10 @@ public class ImportDataCommand implements Command {
                 BlockingQueue<ReaderContext> temp = fromQueue;
                 fromQueue = toQueue;
                 toQueue = temp;
-                latch = new CountDownLatch(this.threadNum);
                 passAllThreads();
             }
             close();
+            System.out.println();
         }
 
         public void close() {
@@ -212,7 +216,7 @@ public class ImportDataCommand implements Command {
             toQueue.forEach(ReaderContext::close);
         }
 
-        public synchronized void blockThread() {
+        public synchronized void blockWorkerThread() {
             try {
                 latch.countDown();
                 this.wait();
@@ -221,7 +225,16 @@ public class ImportDataCommand implements Command {
             }
         }
 
+        public void blockMainThread() {
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                // be quiet
+            }
+        }
+
         public synchronized void passAllThreads() {
+            latch = new CountDownLatch(this.threadNum);
             this.notifyAll();
         }
 
@@ -251,25 +264,15 @@ public class ImportDataCommand implements Command {
 
     }
 
-    private static void waitQuietly(CountDownLatch latch) {
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            // be quiet
-        }
-    }
-
     private static void persistMetricsResults(Date beginTime, Date endTime, Map<String, UrlMetrics> metricsMap) {
         List<UrlMetricsResult> results = metricsMap.values().stream()
                 .map(metrics -> UrlMetricsResult.from(metrics, beginTime, endTime))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+        MonitorService.deleteUrlMetricsResultsByParams(new QueryMap()
+                .param("endTime__gt", beginTime)
+                .param("endTime__le", endTime));
         MonitorService.batchSaveUrlMetricsResults(results);
-        String timePattern = "yyyy-MM-dd HH:mm";
-        log.info("persist [{}] metrics results in the range of [{} - {}]",
-                metricsMap.size(),
-                DateFormatUtils.format(beginTime, timePattern),
-                DateFormatUtils.format(endTime, timePattern));
     }
 
 }
