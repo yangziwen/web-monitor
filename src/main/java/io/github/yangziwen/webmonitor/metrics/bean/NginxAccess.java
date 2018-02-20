@@ -30,6 +30,8 @@ public class NginxAccess {
             "/rest/files",
             "/rest/search",
             "/rest/user",
+            "/rest/insight",
+            "/auth",
             "/git",
             "/review");
 

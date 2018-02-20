@@ -6,6 +6,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 
 import io.github.yangziwen.webmonitor.command.Command;
+import io.github.yangziwen.webmonitor.command.ImportDataCommand;
 import io.github.yangziwen.webmonitor.command.ServerCommand;
 
 public class Main {
@@ -16,7 +17,7 @@ public class Main {
 
         JCommander commander = new JCommander();
 
-        Command[] commands = { new ServerCommand() };
+        Command[] commands = { new ServerCommand(), new ImportDataCommand() };
 
         for (Command command : commands) {
             commander.addCommand(command.name(), command);

@@ -30,7 +30,7 @@ public class UrlMetricsManager {
     public static void doStats(NginxAccess access) {
         String pattern = UrlPatternManager.getBestMatchedUrlPattern(access.getBackendUrl());
         ensureRing(pattern).add(access);
-        ensureMetrics(pattern).doStats(access);
+        ensureMetrics(pattern, urlMetricsMap).doStats(access);
     }
 
     private static ElementRing<NginxAccess> ensureRing(String urlPattern) {
@@ -41,8 +41,7 @@ public class UrlMetricsManager {
         return ringMap.get(urlPattern);
     }
 
-    private static UrlMetrics ensureMetrics(String urlPattern) {
-        ConcurrentHashMap<String, UrlMetrics> metricsMap = urlMetricsMap;
+    public static UrlMetrics ensureMetrics(String urlPattern,  ConcurrentHashMap<String, UrlMetrics> metricsMap) {
         if (!metricsMap.containsKey(urlPattern)) {
             metricsMap.putIfAbsent(urlPattern, new UrlMetrics(urlPattern));
         }

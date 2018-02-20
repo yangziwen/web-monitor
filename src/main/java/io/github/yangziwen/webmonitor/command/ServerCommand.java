@@ -21,7 +21,8 @@ public class ServerCommand implements Command {
     @Parameter(names = {"-l", "--static-location"}, description = "specify the folder the static files")
     public String staticLocation = "/static";
 
-    @Override public void invoke(JCommander commander) {
+    @Override
+    public void invoke(JCommander commander) {
         if (help) {
             commander.usage(name());
             return;
