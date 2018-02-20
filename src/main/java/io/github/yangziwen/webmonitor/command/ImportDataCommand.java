@@ -96,7 +96,7 @@ public class ImportDataCommand implements Command {
         new Processor(logFiles, threadNum, fromTime, toTime, interval).run();
     }
 
-    public static class Processor {
+    public class Processor {
 
         private final int threadNum;
 
@@ -140,8 +140,8 @@ public class ImportDataCommand implements Command {
                 thread.setName("process-access-log-thread-" + i);
                 return thread;
             }).collect(Collectors.toList());
-            fromQueue.addAll(files.stream().map(ReaderContext::new).collect(Collectors.toList()));
-            progress = new Progress("import data", toTime.getTime() - fromTime.getTime());
+            this.fromQueue.addAll(files.stream().map(ReaderContext::new).collect(Collectors.toList()));
+            this.progress = new Progress("import data", toTime.getTime() - fromTime.getTime());
         }
 
         private void consumeReader() {
@@ -173,7 +173,7 @@ public class ImportDataCommand implements Command {
             NginxAccessParser parser = new NginxAccessParser();
             String line = null;
             while ((line = context.getReader().readLine()) != null) {
-                parser.parse(line);
+                parser.reset().parse(line);
                 access = parser.toNginxAccess();
                 if (access.getTimestamp() <= beginTime.getTime()) {
                     continue;
@@ -241,7 +241,7 @@ public class ImportDataCommand implements Command {
     }
 
     @Data
-    private static class ReaderContext {
+    private class ReaderContext {
 
         private File file;
 
