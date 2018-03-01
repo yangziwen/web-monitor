@@ -33,7 +33,8 @@ public class NginxAccess {
             "/rest/insight",
             "/auth",
             "/git",
-            "/review");
+            "/review",
+            "/files");
 
     private String url;
 

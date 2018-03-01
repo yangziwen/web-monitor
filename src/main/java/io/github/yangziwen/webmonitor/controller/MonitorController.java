@@ -37,6 +37,12 @@ public class MonitorController extends BaseController {
                     .message("loaded %d url patterns", UrlPatternManager.getLoadedUrlPatternCount());
         }, JSON::toJSONString);
 
+        // 获取所有项目列表
+        Spark.get("/monitor/projects.json", (request, response) -> {
+            response.type(CONTENT_TYPE_JSON);
+            return OK.newResult().data(MonitorService.getAllProjects());
+        }, JSON::toJSONString);
+
         // 接收logstash发送日志的接口
         Spark.post("/monitor/nginx/access.json", (request, response) -> {
             response.type(CONTENT_TYPE_JSON);

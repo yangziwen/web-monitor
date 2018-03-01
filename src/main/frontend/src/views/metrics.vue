@@ -40,7 +40,6 @@
             style="width: 100px; display: inline-block;"
             @on-change="onEndTimeChange"
         ></Time-picker>
-        &nbsp;&nbsp;
         <div style="margin-top: 10px; display: inline-block;">
         最近
         <RadioGroup v-model="shortcutButton" type="button"
@@ -48,16 +47,20 @@
             <Radio label="10m"></Radio>
             <Radio label="30m"></Radio>
             <Radio label="1h"></Radio>
-            <Radio label="2h"></Radio>
+            <!-- <Radio label="2h"></Radio>
             <Radio label="6h"></Radio>
-            <Radio label="12h"></Radio>
+            <Radio label="12h"></Radio> -->
             <Radio label="1d"></Radio>
             <Radio label="7d"></Radio>
         </RadioGroup>
         </div>
+        &nbsp;&nbsp;
+        <Select v-model="filter.project" style="width:150px" placeholder="请选择项目">
+            <Option v-for="project in projects" :value="project" :key="project">{{ project }}</Option>
+        </Select>
     </div>
     <div>
-        <metrics-table :data="tableData"
+        <metrics-table :data="filteredData"
             @on-show-distribution="renderDistributionChart"
             @on-show-request="renderRequestChart"
         ></metrics-table>
@@ -80,7 +83,7 @@
             </div>
         </Modal>
     </div>
-</div>    
+</div>
 </template>
 <script>
     import { distributionChart } from '../components/metricsCharts.vue';
@@ -107,6 +110,11 @@
                         time: ''
                     }
                 },
+                projects: [],
+                filter: {
+                    project: '',
+                    url: ''
+                },
                 tableData: [],
                 distribution: {
                     data: {},
@@ -132,10 +140,23 @@
                 }
                 const { date, time } = this.dateTimeRange.end;
                 return date + ' ' + time;
+            },
+            filteredData() {
+                const { project, url } = this.filter;
+                if (!project && !url) {
+                    return this.tableData;
+                }
+                const filterProject = data => !project ? true : project == data.project;
+                const urlRe = new RegExp(url);
+                const filterUrl = data => !url ? true : urlRe.test(url);
+                return this.tableData.filter(data => {
+                    return filterProject(data) && filterUrl(data);
+                });
             }
         },
-        mounted() {
+        mounted: async function() {
             this.changeDateTimeRange(Date.now() - 1000 * 60 * 10, Date.now());
+            this.projects = await this.loadProjects();
             this.renderTable();
         },
         methods: {
@@ -152,6 +173,13 @@
                         time: endDateTime.format('HH:mm')
                     }
                 };
+            },
+            loadProjects() {
+                return new Promise((resolve, reject) => {
+                    this.$http.get(`/monitor/projects.json`).then(resp => {
+                        resolve(resp.data.data);
+                    });
+                });
             },
             onShortcutButtonChange(value) {
                 const matchedResult = /(\d+)([mhd])/.exec(value);

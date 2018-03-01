@@ -20,7 +20,9 @@ import io.github.yangziwen.webmonitor.model.UrlPattern;
 import io.github.yangziwen.webmonitor.repository.UrlMetricsResultRepo;
 import io.github.yangziwen.webmonitor.repository.UrlPatternRepo;
 import io.github.yangziwen.webmonitor.repository.base.QueryMap;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class MonitorService {
 
     private static final UrlPatternRepo urlPatternRepo = new UrlPatternRepo(getDataSource());
@@ -28,6 +30,11 @@ public class MonitorService {
     private static final UrlMetricsResultRepo urlMetricsResultRepo = new UrlMetricsResultRepo(getDataSource());
 
     private static Map<String, String> urlPatternMapping = Collections.emptyMap();
+
+    static {
+        MonitorService.reloadUrlPatterns();
+        log.info("loaded {} url patterns", UrlPatternManager.getLoadedUrlPatternCount());
+    }
 
     private MonitorService() {}
 
@@ -42,6 +49,10 @@ public class MonitorService {
                 .list()
                 .stream()
                 .collect(Collectors.toMap(UrlPattern::getUrl, UrlPattern::getProject));
+    }
+
+    public static List<String> getAllProjects() {
+        return urlPatternRepo.getAllProjects();
     }
 
     public static List<UrlMetrics> getUrlMetricsResultsBetween(Date beginTime, Date endTime) {
