@@ -16,7 +16,9 @@ import com.alibaba.fastjson.JSON;
 
 import io.github.yangziwen.webmonitor.controller.IndexController;
 import io.github.yangziwen.webmonitor.controller.MonitorController;
+import io.github.yangziwen.webmonitor.metrics.UrlPatternManager;
 import io.github.yangziwen.webmonitor.schedule.TaskConfig;
+import io.github.yangziwen.webmonitor.service.MonitorService;
 import it.sauronsoftware.cron4j.Scheduler;
 import lombok.extern.slf4j.Slf4j;
 import spark.Spark;
@@ -61,9 +63,18 @@ public class Server {
 
         initLandingPage(staticLocation);
 
+        initUrlPatterns();
+
         initTasks();
 
         Runtime.getRuntime().addShutdownHook(new Thread(Spark::stop));
+
+    }
+
+    private static void initUrlPatterns() {
+
+        MonitorService.reloadUrlPatterns();
+        log.info("loaded {} url patterns", UrlPatternManager.getLoadedUrlPatternCount());
 
     }
 

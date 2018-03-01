@@ -15,7 +15,6 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Multimap;
 
-import io.github.yangziwen.webmonitor.service.MonitorService;
 import io.github.yangziwen.webmonitor.util.MultiPathMatcher;
 
 public class UrlPatternManager {
@@ -34,11 +33,6 @@ public class UrlPatternManager {
 
     // 第一节路径中不包含模块匹配模式，但后续路径中包括模糊匹配模式的url
     private static Multimap<String, String> prefixKeyedUrlMap = ImmutableSetMultimap.of();
-
-    static {
-        MonitorService.reloadUrlPatterns();
-        logger.info("loaded {} url patterns", getLoadedUrlPatternCount());
-    }
 
     private UrlPatternManager() {}
 

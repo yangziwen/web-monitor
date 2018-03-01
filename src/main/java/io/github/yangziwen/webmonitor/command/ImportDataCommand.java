@@ -13,6 +13,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -124,6 +125,8 @@ public class ImportDataCommand implements Command {
 
         private Progress progress;
 
+        private AtomicLong parseTimeConsuming = new AtomicLong(0L);
+
         public Processor(List<File> files, int threadNum, Date fromTime, Date toTime, long interval) {
             this.threadNum = threadNum;
             this.fromTime = fromTime;
@@ -173,7 +176,9 @@ public class ImportDataCommand implements Command {
             NginxAccessParser parser = new NginxAccessParser();
             String line = null;
             while ((line = context.getReader().readLine()) != null) {
+                long t = System.nanoTime();
                 parser.reset().parse(line);
+                parseTimeConsuming.addAndGet(System.nanoTime() - t);
                 access = parser.toNginxAccess();
                 if (access.getTimestamp() <= beginTime.getTime()) {
                     continue;
@@ -209,6 +214,7 @@ public class ImportDataCommand implements Command {
             }
             close();
             System.out.println();
+            System.out.println(parseTimeConsuming.get() / 1000000);
         }
 
         public void close() {

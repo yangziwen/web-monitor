@@ -9,14 +9,29 @@ public class UrlMetrics extends Metrics {
 
     private String urlPattern;
 
+    private String project;
+
     private AtomicLong errorCnt = new AtomicLong(0L);
 
     public UrlMetrics(String urlPattern) {
         this.urlPattern = urlPattern;
     }
 
+    public UrlMetrics(String urlPattern, String project) {
+        this.urlPattern = urlPattern;
+        this.project = project;
+    }
+
     public String getUrlPattern() {
         return urlPattern;
+    }
+
+    public String getProject() {
+        return project;
+    }
+
+    public void setProject(String project) {
+        this.project = project;
     }
 
     public long getErrorCnt() {

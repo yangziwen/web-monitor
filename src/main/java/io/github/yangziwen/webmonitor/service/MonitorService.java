@@ -2,10 +2,10 @@ package io.github.yangziwen.webmonitor.service;
 
 import static io.github.yangziwen.webmonitor.util.DataSourceFactory.getDataSource;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -27,15 +27,21 @@ public class MonitorService {
 
     private static final UrlMetricsResultRepo urlMetricsResultRepo = new UrlMetricsResultRepo(getDataSource());
 
+    private static Map<String, String> urlPatternMapping = Collections.emptyMap();
+
     private MonitorService() {}
 
     public static void reloadUrlPatterns() {
-        Set<String> urlPatterns = urlPatternRepo
+        Map<String, String> mapping = getUrlPatternProjectMapping();
+        UrlPatternManager.reloadUrlPatterns(mapping.keySet());
+        urlPatternMapping = Collections.unmodifiableMap(mapping);
+    }
+
+    public static Map<String, String> getUrlPatternProjectMapping() {
+        return urlPatternRepo
                 .list()
                 .stream()
-                .map(UrlPattern::getUrl)
-                .collect(Collectors.toSet());
-        UrlPatternManager.reloadUrlPatterns(urlPatterns);
+                .collect(Collectors.toMap(UrlPattern::getUrl, UrlPattern::getProject));
     }
 
     public static List<UrlMetrics> getUrlMetricsResultsBetween(Date beginTime, Date endTime) {
@@ -51,6 +57,7 @@ public class MonitorService {
                             (metrics, result) -> metrics.merge(result),
                             (m1, m2) -> m1.merge(m2));
                 })
+                .peek(m -> m.setProject(urlPatternMapping.get(m.getUrlPattern())))
                 .collect(Collectors.toList());
     }
 
@@ -65,6 +72,7 @@ public class MonitorService {
                             new UrlMetrics(entry.getKey()),
                             (m1, m2) -> m1.merge(m2));
                 })
+                .peek(m -> m.setProject(urlPatternMapping.get(m.getUrlPattern())))
                 .collect(Collectors.toList());
     }
 
@@ -76,6 +84,7 @@ public class MonitorService {
                 .orderByAsc("endTime");
         return urlMetricsResultRepo.list(params).stream()
                 .map(result -> new PeriodUrlMetrics(result))
+                .peek(m -> m.setProject(urlPatternMapping.get(m.getUrlPattern())))
                 .collect(Collectors.toList());
     }
 
