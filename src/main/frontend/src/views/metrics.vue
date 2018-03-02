@@ -55,8 +55,8 @@
         </RadioGroup>
         </div>
         &nbsp;&nbsp;
-        <Select v-model="filter.project" style="width:150px" placeholder="请选择项目">
-            <Option v-for="project in projects" :value="project" :key="project">{{ project }}</Option>
+        <Select v-model="filter.project" style="width:125px" placeholder="请选择项目">
+            <Option v-for="project in projects" :value="project" :key="project">{{ project || '全部' }}</Option>
         </Select>
     </div>
     <div>

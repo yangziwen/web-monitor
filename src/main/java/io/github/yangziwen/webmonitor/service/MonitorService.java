@@ -32,8 +32,7 @@ public class MonitorService {
     private static Map<String, String> urlPatternMapping = Collections.emptyMap();
 
     static {
-        MonitorService.reloadUrlPatterns();
-        log.info("loaded {} url patterns", UrlPatternManager.getLoadedUrlPatternCount());
+        log.info("{} url patterns are ready", UrlPatternManager.getLoadedUrlPatternCount());
     }
 
     private MonitorService() {}
