@@ -58,16 +58,17 @@
         </RadioGroup>
         </div>
         &nbsp;&nbsp;
-        <Badge :count="filteredData.length" overflow-count="10000" class-name="count-badge">
+        <Badge :count="displayedRows" overflow-count="10000" class-name="count-badge">
             <Select v-model="filter.project" style="width:125px" placeholder="请选择项目">
                 <Option v-for="project in projects" :value="project" :key="project">{{ project || '全部' }}</Option>
             </Select>
         </Badge>
     </div>
     <div>
-        <metrics-table :data="filteredData" :height="600"
+        <metrics-table ref="metricsTable" :data="filteredData" :height="600"
             @on-show-distribution="renderDistributionChart"
             @on-show-request="renderRequestChart"
+            @on-filter-change="handleFilterChange"
         ></metrics-table>
         <Modal v-model="distribution.show" width="640"
                 class-name="vertical-center-modal">
@@ -118,7 +119,8 @@
                 projects: [],
                 filter: {
                     project: '',
-                    url: ''
+                    url: '',
+                    avgColumn: null
                 },
                 tableData: [],
                 distribution: {
@@ -157,6 +159,15 @@
                 return this.tableData.filter(data => {
                     return filterProject(data) && filterUrl(data);
                 });
+            },
+            displayedRows() {
+                if (!this.filter.avgColumn || this.filter.avgColumn.options.length == 0) {
+                    return this.filteredData.length;
+                }
+                return this.filteredData.filter(data => {
+                    return this.filter.avgColumn.options
+                        .find(v => this.filter.avgColumn.filterMethod(v, data))
+                }).length;
             }
         },
         mounted: async function() {
@@ -252,6 +263,14 @@
                     };
                     this.request.show = true;
                 });
+            },
+            handleFilterChange(column) {
+                if (column.key == 'avg') {
+                    this.filter.avgColumn = {
+                        filterMethod: column.filterMethod,
+                        options: column._filterChecked
+                    }
+                }
             }
         }
     }

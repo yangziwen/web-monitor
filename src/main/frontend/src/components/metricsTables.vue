@@ -3,7 +3,13 @@
     import { uuid } from './common.vue';
 
     export const metricsTable = {
-        template: '<Table :id="id" :data="data" :columns="columns" :height="height"></Table>',
+        template: `<Table highlight-row ref="table"
+                        :id="id"
+                        :data="data"
+                        :columns="columns"
+                        :height="height"
+                        @on-filter-change="handleFilterChange"
+                    />`,
         props: {
             id: {
                 default: () => `chart-id-${uuid()}`
@@ -13,6 +19,11 @@
             },
             height: {
                 default: 400
+            }
+        },
+        methods: {
+            handleFilterChange(column) {
+                this.$emit('on-filter-change', column);
             }
         },
         data() {
