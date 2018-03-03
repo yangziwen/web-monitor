@@ -65,7 +65,7 @@
         </Badge>
     </div>
     <div>
-        <metrics-table :data="filteredData"
+        <metrics-table :data="filteredData" :height="600"
             @on-show-distribution="renderDistributionChart"
             @on-show-request="renderRequestChart"
         ></metrics-table>

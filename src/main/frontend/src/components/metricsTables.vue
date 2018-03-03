@@ -3,13 +3,16 @@
     import { uuid } from './common.vue';
 
     export const metricsTable = {
-        template: '<Table :id="id" :data="data" :columns="columns" height="600"></Table>',
+        template: '<Table :id="id" :data="data" :columns="columns" :height="height"></Table>',
         props: {
             id: {
                 default: () => `chart-id-${uuid()}`
             },
             data: {
                 default: []
+            },
+            height: {
+                default: 400
             }
         },
         data() {
