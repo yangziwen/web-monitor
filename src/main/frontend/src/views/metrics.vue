@@ -1,5 +1,5 @@
-<style scoped>
-   .vertical-center-modal {
+<style>
+    .vertical-center-modal {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -7,13 +7,16 @@
             top: 0;
         }
     }
-   div.charts > div {
-       float: left;
-       margin-bottom: 20px;
-   }
-   #date-picker-wrapper {
-       margin-bottom: 10px;
-   }
+    div.charts > div {
+        float: left;
+        margin-bottom: 20px;
+    }
+    #date-picker-wrapper {
+        margin-bottom: 10px;
+    }
+    .count-badge {
+        background: #5cb85c !important;
+    }
 </style>
 <template>
 <div class="metrics-area">
@@ -55,9 +58,11 @@
         </RadioGroup>
         </div>
         &nbsp;&nbsp;
-        <Select v-model="filter.project" style="width:125px" placeholder="请选择项目">
-            <Option v-for="project in projects" :value="project" :key="project">{{ project || '全部' }}</Option>
-        </Select>
+        <Badge :count="filteredData.length" overflow-count="10000" class-name="count-badge">
+            <Select v-model="filter.project" style="width:125px" placeholder="请选择项目">
+                <Option v-for="project in projects" :value="project" :key="project">{{ project || '全部' }}</Option>
+            </Select>
+        </Badge>
     </div>
     <div>
         <metrics-table :data="filteredData"

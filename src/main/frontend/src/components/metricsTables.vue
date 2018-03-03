@@ -41,8 +41,41 @@
                 }, {
                     key: 'avg',
                     title: 'avg (ms)',
-                    width: 110,
-                    sortable: true
+                    width: 120,
+                    sortable: true,
+                    filters: [{
+                        label: '0s to 0.2s',
+                        value: '0-200'
+                    }, {
+                        label: '0.2s to 0.5s',
+                        value: '200-500'
+                    }, {
+                        label: '0.5s to 1s',
+                        value: '500-1000'
+                    }, {
+                        label: '1s to 2s',
+                        value: '1000-2000'
+                    }, {
+                        label: '2s to 5s',
+                        value: '2000-5000'
+                    }, {
+                        label: '5s to 10s',
+                        value: '5000-10000'
+                    }, {
+                        label: '10s+',
+                        value: '10000'
+                    }],
+                    filterMultiple: true,
+                    filterMethod (value, row) {
+                        const arr = value.split('-');
+                        if (row.avg < arr[0]) {
+                            return false;
+                        }
+                        if (arr.length > 1 && row.avg > arr[1]) {
+                            return false;
+                        }
+                        return true;
+                    }
                 }, {
                     key: 'action',
                     title: '操作',
