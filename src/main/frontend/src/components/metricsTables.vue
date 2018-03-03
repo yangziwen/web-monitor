@@ -58,22 +58,22 @@
                     width: 120,
                     sortable: true,
                     filters: [{
-                        label: '0s to 0.2s',
+                        label: '0-0.2s',
                         value: '0-200'
                     }, {
-                        label: '0.2s to 0.5s',
+                        label: '0.2-0.5s',
                         value: '200-500'
                     }, {
-                        label: '0.5s to 1s',
+                        label: '0.5-1s',
                         value: '500-1000'
                     }, {
-                        label: '1s to 2s',
+                        label: '1-2s',
                         value: '1000-2000'
                     }, {
-                        label: '2s to 5s',
+                        label: '2-5s',
                         value: '2000-5000'
                     }, {
-                        label: '5s to 10s',
+                        label: '5-10s',
                         value: '5000-10000'
                     }, {
                         label: '10s+',
