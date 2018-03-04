@@ -8,7 +8,8 @@ import java.util.stream.Collectors;
 
 import com.alibaba.fastjson.annotation.JSONField;
 
-import javafx.util.Pair;
+import io.github.yangziwen.webmonitor.util.Pair;
+
 
 public class Metrics {
 
@@ -46,7 +47,6 @@ public class Metrics {
         return new Long(sum.get() / cnt.get()).intValue();
     }
 
-    @SuppressWarnings("restriction")
     public List<Pair<String, Integer>> getDistributionList() {
         Map<String, Integer> map =  this.distribution.toMap();
         return map.entrySet().stream()
