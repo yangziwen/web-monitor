@@ -65,10 +65,10 @@
         </Select>
     </div>
     <div>
-        <metrics-table ref="metricsTable" :data="filteredData" :height="600"
+        <metrics-table ref="metricsTable" :data="filteredData" :height="tableHeight"
             @on-show-distribution="renderDistributionChart"
             @on-show-request="renderRequestChart"
-            @on-filter-change="handleFilterChange"
+            @on-filter-change="onFilterChange"
         ></metrics-table>
         <Modal v-model="distribution.show" width="640"
                 class-name="vertical-center-modal">
@@ -106,6 +106,7 @@
             const $this = this;
             return {
                 shortcutButton: '10m',
+                tableHeight: 600,
                 dateTimeRange: {
                     begin: {
                         date: '',
@@ -174,6 +175,8 @@
             this.changeDateTimeRange(Date.now() - 1000 * 60 * 10, Date.now());
             this.projects = await this.loadProjects();
             this.renderTable();
+            this.refreshTableHeight();
+            this.initRefreshTableSizeTimer();
         },
         methods: {
             changeDateTimeRange(beginMilliSeconds, endMilliSeconds) {
@@ -232,6 +235,29 @@
                 this.shortcutButton = '';
                 this.renderTable();
             },
+            onFilterChange(column) {
+                if (column.key == 'avg') {
+                    this.filter.avgColumn = {
+                        filterMethod: column.filterMethod,
+                        options: column._filterChecked
+                    }
+                }
+            },
+            refreshTableHeight() {
+                this.tableHeight = window.innerHeight - this.$refs.metricsTable.offsetTop() - 15;
+            },
+            initRefreshTableSizeTimer() {
+                let timer = null;
+                this.$root.eventBus.$on('window-size-changed', () => {
+                    if (timer) {
+                        return;
+                    }
+                    timer = setTimeout(() => {
+                        this.refreshTableHeight();
+                        timer = null;
+                    }, 800);
+                });
+            },
             renderTable() {
                 const beginTime = this.$moment(this.beginDateTime, 'YYYY-MM-DD HH:mm').format('x');
                 const endTime = this.$moment(this.endDateTime, 'YYYY-MM-DD HH:mm').format('x');
@@ -263,14 +289,6 @@
                     };
                     this.request.show = true;
                 });
-            },
-            handleFilterChange(column) {
-                if (column.key == 'avg') {
-                    this.filter.avgColumn = {
-                        filterMethod: column.filterMethod,
-                        options: column._filterChecked
-                    }
-                }
             }
         }
     }

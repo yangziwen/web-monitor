@@ -110,8 +110,11 @@
         },
         mounted() {
             window.onresize = () => {
-                this.mainHeight = window.innerHeight;
+                this.$root.eventBus.$emit('window-size-changed');
             };
+            this.$root.eventBus.$on('window-size-changed', () => {
+                this.mainHeight = window.innerHeight;
+            })
             window.onresize();
         },
         methods: {

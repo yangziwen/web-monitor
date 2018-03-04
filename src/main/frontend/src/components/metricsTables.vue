@@ -24,6 +24,9 @@
         methods: {
             handleFilterChange(column) {
                 this.$emit('on-filter-change', column);
+            },
+            offsetTop() {
+                return this.$refs.table.$el.offsetTop;
             }
         },
         data() {
