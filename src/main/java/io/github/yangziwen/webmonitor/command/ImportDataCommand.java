@@ -1,10 +1,21 @@
 package io.github.yangziwen.webmonitor.command;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +30,10 @@ import java.util.stream.IntStream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.tika.detect.Detector;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.mime.MediaType;
+import org.apache.tika.parser.AutoDetectParser;
 import org.eclipse.jetty.util.BlockingArrayQueue;
 
 import com.beust.jcommander.JCommander;
@@ -77,7 +92,7 @@ public class ImportDataCommand implements Command {
             names = {"-f", "--access-logs"},
             description = "the paths of nginx access log files",
             required = true)
-    public List<File> logFiles;
+    public List<File> files;
 
 
     @Override
@@ -90,11 +105,63 @@ public class ImportDataCommand implements Command {
             log.error("interval is too short");
             return;
         }
-        if (!logFiles.stream().allMatch(File::isFile)) {
-            log.error("some log files are not existed");
-            return;
-        }
+        List<File> logFiles = files.stream()
+                .map(ImportDataCommand::walkTextFiles)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
         new Processor(logFiles, threadNum, fromTime, toTime, interval).run();
+    }
+
+    private static List<File> walkTextFiles(File file) {
+        if (file == null) {
+            return Collections.emptyList();
+        }
+        TextFileVisitor visitor = new TextFileVisitor();
+        try {
+            Files.walkFileTree(Paths.get(file.getAbsolutePath()), visitor);
+            return visitor.getFiles();
+        } catch (IOException e) {
+            log.error("failed to walk file[{}]", file);
+            return Collections.emptyList();
+        }
+    }
+
+    public static class TextFileVisitor extends SimpleFileVisitor<Path> {
+
+        private List<File> files = new ArrayList<>();
+
+        public List<File> getFiles() {
+            return files;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
+            File file = path.toFile();
+            if (isText(file)) {
+                files.add(file);
+            }
+            return FileVisitResult.CONTINUE;
+        }
+
+        private static boolean isText(File file) {
+            return MediaType.TEXT_PLAIN == detectMimeType(file);
+        }
+
+        private static MediaType detectMimeType(File file) {
+            if (file == null || !file.isFile()) {
+                return null;
+            }
+            try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(file))) {
+                Metadata metadata = new Metadata();
+                metadata.add(Metadata.RESOURCE_NAME_KEY, file.getName());
+                Detector detector = new AutoDetectParser().getDetector();
+                return detector.detect(in, metadata);
+            } catch (IOException e) {
+                log.error("failed to detect the mime type of file[{}]", file.getAbsolutePath());
+                return null;
+            }
+        }
+
     }
 
     public class Processor {

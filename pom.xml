@@ -96,6 +96,11 @@
 			<version>4.2.6.RELEASE</version>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-core</artifactId>
+			<version>1.17</version>
+		</dependency>
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<version>1.16.8</version>
@@ -173,9 +178,9 @@
 				<artifactId>dockerfile-maven-plugin</artifactId>
 				<version>1.4.0</version>
 				<configuration>
-				    <repository>${project.name}</repository>
-				    <tag>${project.version}</tag>
-				    <skipPush>true</skipPush>
+					<repository>${project.name}</repository>
+					<tag>${project.version}</tag>
+					<skipPush>true</skipPush>
 				</configuration>
 			</plugin>
 		</plugins>

@@ -31,10 +31,12 @@ public class NginxAccess {
             "/rest/search",
             "/rest/user",
             "/rest/insight",
+            "/rest/eagle",
             "/auth",
             "/git",
             "/review",
-            "/files");
+            "/files",
+            "/search");
 
     private String url;
 
