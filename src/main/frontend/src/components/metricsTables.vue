@@ -27,6 +27,9 @@
             },
             offsetTop() {
                 return this.$refs.table.$el.offsetTop;
+            },
+            exportCsv(options) {
+                this.$refs.table.exportCsv(options);
             }
         },
         data() {
@@ -34,15 +37,22 @@
                 columns: [{
                     key: 'urlPattern',
                     title: 'url',
+                    width: 330,
+                    fixed: 'left',
                     sortable: true
                 }, {
+                    key: 'project',
+                    title: 'project',
+                    width: 150,
+                    sortable: true,
+                }, {
                     key: 'cnt',
-                    title: '总数',
+                    title: 'total',
                     width: 100,
                     sortable: true
                 }, {
                     key: 'errorCnt',
-                    title: '错误数',
+                    title: 'error',
                     width: 100,
                     sortable: true
                 }, {
@@ -94,9 +104,21 @@
                         return true;
                     }
                 }, {
+                    key: '95percentile',
+                    title: '95%(ms)',
+                    width: 120,
+                    sortable: true,
+                    sortMethod(v1, v2, type) {
+                        const direction = type == 'desc' ? -1 : 1;
+                        const n1 = parseInt(v1.split(/\D/)[0]);
+                        const n2 = parseInt(v2.split(/\D/)[0]);
+                        return direction * (n1 - n2);
+                    },
+                }, {
                     key: 'action',
                     title: '操作',
                     width: 110,
+                    fixed: 'right',
                     render: (h, params) => {
                         return h('div', [
                             h('Button', {

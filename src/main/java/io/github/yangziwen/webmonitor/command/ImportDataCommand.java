@@ -109,6 +109,8 @@ public class ImportDataCommand implements Command {
                 .map(ImportDataCommand::walkTextFiles)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
+        log.info("following files will be processed");
+        logFiles.stream().forEach(f -> log.info(f.getAbsolutePath()));
         new Processor(logFiles, threadNum, fromTime, toTime, interval).run();
     }
 

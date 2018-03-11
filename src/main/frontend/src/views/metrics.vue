@@ -49,20 +49,22 @@
         最近
         <RadioGroup v-model="shortcutButton" type="button"
             @on-change="onShortcutButtonChange">
-            <Radio label="10m"></Radio>
+            <!-- <Radio label="10m"></Radio>
             <Radio label="30m"></Radio>
             <Radio label="1h"></Radio>
-            <!-- <Radio label="2h"></Radio>
-            <Radio label="6h"></Radio>
-            <Radio label="12h"></Radio> -->
+            <Radio label="2h"></Radio>
+            <Radio label="6h"></Radio> -->
+            <Radio label="12h"></Radio>
             <Radio label="1d"></Radio>
             <Radio label="7d"></Radio>
         </RadioGroup>
         </div>
         &nbsp;&nbsp;
-        <Select v-model="filter.project" style="width:125px" placeholder="请选择项目">
+        <Select v-model="filter.project" style="width:125px" placeholder="请选择服务">
             <Option v-for="project in projects" :value="project" :key="project">{{ project || '全部' }}</Option>
         </Select>
+        &nbsp;&nbsp;
+        <Button type="primary" @click="exportData()">导出</Button>
     </div>
     <div>
         <metrics-table ref="metricsTable" :data="filteredData" :height="tableHeight"
@@ -263,6 +265,18 @@
                 const endTime = this.$moment(this.endDateTime, 'YYYY-MM-DD HH:mm').format('x');
                 const url = `/monitor/metrics/between/list.json?beginTime=${beginTime}&endTime=${endTime}`;
                 this.$http.get(url).then(resp => {
+                    const data = resp.data.data;
+                    data.forEach(row => {
+                        const { cnt, distributionList } = row;
+                        let i = 0, len = distributionList.length, cur = 0, ceil = cnt * 0.95;
+                        for (; i < len - 1; i++) {
+                            cur += distributionList[i]['value'];
+                            if (cur >= ceil) {
+                                break;
+                            }
+                        }
+                        row['95percentile'] = distributionList[i]['key'];
+                    });
                     this.tableData = resp.data.data;
                 });
             },
@@ -289,6 +303,13 @@
                     };
                     this.request.show = true;
                 });
+            },
+            exportData() {
+                const { begin, end } = this.dateTimeRange;
+                this.$refs.metricsTable.exportCsv({
+                    filename: `url_metrics_${begin.date}_${begin.time}-${end.date}_${end.time}.csv`,
+                    original: false
+                })
             }
         }
     }
