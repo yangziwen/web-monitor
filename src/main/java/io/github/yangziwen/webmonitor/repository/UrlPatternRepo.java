@@ -19,6 +19,7 @@ public class UrlPatternRepo extends BaseRepository<UrlPattern> {
         return doList("select distinct project as project from url_pattern", Collections.<String, Object>emptyMap())
                 .stream()
                 .map(UrlPattern::getProject)
+                .sorted()
                 .collect(Collectors.toList());
     }
 

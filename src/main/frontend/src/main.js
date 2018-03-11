@@ -4,6 +4,7 @@ import VueRouter from 'vue-router';
 import Echarts from 'echarts';
 import VueResource from 'vue-resource';
 import Moment from 'vue-moment';
+import jQuery from 'jquery';
 import Routers from './router';
 import Util from './libs/util';
 import App from './app.vue';
@@ -15,6 +16,7 @@ Vue.use(VueResource);
 Vue.use(Moment);
 
 Vue.prototype.$echarts = Echarts;
+Vue.prototype.$ = jQuery;
 
 // 路由配置
 const RouterConfig = {

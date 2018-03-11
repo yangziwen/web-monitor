@@ -67,7 +67,7 @@
         <Button type="primary" @click="exportData()">导出</Button>
     </div>
     <div>
-        <metrics-table ref="metricsTable" :data="filteredData" :height="tableHeight"
+        <metrics-table ref="metricsTable" :data="filteredData" :height="tableHeight" :fix-column="fixColumn"
             @on-show-distribution="renderDistributionChart"
             @on-show-request="renderRequestChart"
             @on-filter-change="onFilterChange"
@@ -133,7 +133,8 @@
                 request: {
                     data: {},
                     show: false
-                }
+                },
+                fixColumn: false
             }
         },
         computed: {
@@ -177,6 +178,7 @@
             this.changeDateTimeRange(Date.now() - 1000 * 60 * 10, Date.now());
             this.projects = await this.loadProjects();
             this.renderTable();
+            this.refreshTableColumns();
             this.refreshTableHeight();
             this.initRefreshTableSizeTimer();
         },
@@ -245,6 +247,13 @@
                     }
                 }
             },
+            refreshTableColumns() {
+                if (this.$refs.metricsTable.width() > 1200) {
+                    this.fixColumn = false;
+                } else {
+                    this.fixColumn = true;
+                }
+            },
             refreshTableHeight() {
                 this.tableHeight = window.innerHeight - this.$refs.metricsTable.offsetTop() - 15;
             },
@@ -255,6 +264,7 @@
                         return;
                     }
                     timer = setTimeout(() => {
+                        this.refreshTableColumns();
                         this.refreshTableHeight();
                         timer = null;
                     }, 800);
