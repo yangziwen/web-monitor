@@ -15,14 +15,12 @@
         margin-bottom: 10px;
     }
     .count-badge {
-        background: #646c82 !important;
+        background: #5cb85c !important;
     }
 </style>
 <template>
 <div class="metrics-area">
     <div id="date-picker-wrapper">
-        <Badge :count="displayedRows" overflow-count="10000" class-name="count-badge" />
-        &nbsp;&nbsp;
         from:
         <Date-picker type="date" placeholder="请选择日期"
             :value="dateTimeRange.begin.date" format="yyyy-MM-dd"
@@ -52,8 +50,8 @@
             <!-- <Radio label="10m"></Radio>
             <Radio label="30m"></Radio>
             <Radio label="1h"></Radio>
-            <Radio label="2h"></Radio>
-            <Radio label="6h"></Radio> -->
+            <Radio label="2h"></Radio> -->
+            <Radio label="6h"></Radio>
             <Radio label="12h"></Radio>
             <Radio label="1d"></Radio>
             <Radio label="7d"></Radio>
@@ -64,7 +62,9 @@
             <Option v-for="project in projects" :value="project" :key="project">{{ project || '全部' }}</Option>
         </Select>
         &nbsp;&nbsp;
-        <Button type="primary" @click="exportData()">导出</Button>
+        <Badge :count="displayedRows" overflow-count="10000" class-name="count-badge">
+            <Button type="primary" @click="exportData()">导出</Button>
+        </Badge>
     </div>
     <div>
         <metrics-table ref="metricsTable" :data="filteredData" :height="tableHeight" :fix-column="fixColumn"
