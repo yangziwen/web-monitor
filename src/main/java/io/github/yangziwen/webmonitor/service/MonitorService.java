@@ -54,6 +54,17 @@ public class MonitorService {
         return urlPatternRepo.getAllProjects();
     }
 
+    public static void batchSaveUrlPatterns(List<UrlPattern> patterns) {
+        if (CollectionUtils.isEmpty(patterns)) {
+            return;
+        }
+        urlPatternRepo.batchInsert(patterns);
+    }
+
+    public static void deleteUrlPatternsByParams(Map<String, Object> params) {
+        urlPatternRepo.deleteByParams(params);
+    }
+
     public static List<UrlMetrics> getUrlMetricsResultsBetween(Date beginTime, Date endTime) {
         QueryMap params = new QueryMap()
                 .param("endTime__ge", beginTime)
