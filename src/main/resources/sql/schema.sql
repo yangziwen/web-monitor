@@ -2,17 +2,17 @@
 DROP TABLE IF EXISTS `url_pattern`;
 CREATE TABLE `url_pattern` (
     `id` BIGINT PRIMARY KEY AUTO_INCREMENT,
-    `url` VARCHAR(100) UNIQUE,
+    `url` VARCHAR(255) UNIQUE,
     `project` VARCHAR(50),
     unique key `url`(`url`),
     key `project`(`project`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-
+-- url metrics result
 DROP TABLE IF EXISTS `url_metrics_result`;
 CREATE TABLE `url_metrics_result` (
     `id` BIGINT PRIMARY KEY AUTO_INCREMENT,
-    `url` VARCHAR(100),
+    `url` VARCHAR(255),
     `cnt` BIGINT DEFAULT '0',
     `error_cnt` BIGINT DEFAULT '0',
     `sum` BIGINT DEFAULT '0',
