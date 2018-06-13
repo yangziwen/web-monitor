@@ -73,6 +73,7 @@ source src/main/resources/sql/schema.sql;
 ```
 
 **3. 打包 & 部署**
+- 确认环境中正确安装了java8, maven, npm
 - `mvn package`生成web-monitor.jar
 - 将web-monitor.jar与项目中的conf目录拷贝到同一个目录中
 
