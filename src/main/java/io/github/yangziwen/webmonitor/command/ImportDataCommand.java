@@ -245,20 +245,24 @@ public class ImportDataCommand implements Command {
             NginxAccessParser parser = new NginxAccessParser();
             String line = null;
             while ((line = context.getReader().readLine()) != null) {
-                long t = System.nanoTime();
-                parser.reset().parse(line);
-                parseTimeConsuming.addAndGet(System.nanoTime() - t);
-                access = parser.toNginxAccess();
-                if (access.getTimestamp() <= beginTime.getTime()) {
-                    continue;
+                try {
+                    long t = System.nanoTime();
+                    parser.reset().parse(line);
+                    parseTimeConsuming.addAndGet(System.nanoTime() - t);
+                    access = parser.toNginxAccess();
+                    if (access.getTimestamp() <= beginTime.getTime()) {
+                        continue;
+                    }
+                    if (access.getTimestamp() > endTime.getTime()) {
+                        context.setLatestRecord(access);
+                        toQueue.add(context);
+                        return;
+                    }
+                    String pattern = UrlPatternManager.getBestMatchedUrlPattern(access.getBackendUrl());
+                    UrlMetricsManager.ensureMetrics(pattern, metricsMap).doStats(access);
+                } catch (Exception e) {
+                    log.error("failed to parse line[{}] in file[{}]", line, context.getFile().getAbsolutePath(), e);
                 }
-                if (access.getTimestamp() > endTime.getTime()) {
-                    context.setLatestRecord(access);
-                    toQueue.add(context);
-                    return;
-                }
-                String pattern = UrlPatternManager.getBestMatchedUrlPattern(access.getBackendUrl());
-                UrlMetricsManager.ensureMetrics(pattern, metricsMap).doStats(access);
             }
         }
 
