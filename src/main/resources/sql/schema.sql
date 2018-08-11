@@ -2,7 +2,7 @@
 DROP TABLE IF EXISTS `url_pattern`;
 CREATE TABLE `url_pattern` (
     `id` BIGINT PRIMARY KEY AUTO_INCREMENT,
-    `url` VARCHAR(255) UNIQUE,
+    `url` VARCHAR(255),
     `project` VARCHAR(50),
     unique key `url`(`url`),
     key `project`(`project`)
