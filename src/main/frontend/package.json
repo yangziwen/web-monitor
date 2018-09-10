@@ -1,7 +1,7 @@
 {
-  "name": "performance-analyzer-frontend",
+  "name": "web-monitor-frontend",
   "version": "2.0.0",
-  "description": "The frontend for performance-analyzer",
+  "description": "The frontend of web-monitor",
   "main": "index.js",
   "scripts": {
     "init": "webpack --progress --config webpack.dev.config.js",
