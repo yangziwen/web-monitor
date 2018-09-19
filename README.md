@@ -95,6 +95,6 @@ server {
     }
 }
 ```
-- 在目录src/main/frontend中执行`npm run dev`，以开发模式启动前端代码，监听8080端口（如果是第一次启动，请在启动前先执行npm install）
+- 在目录src/main/frontend中执行`npm run dev`，以开发模式启动前端代码，监听8080端口（如果是第一次启动，请在启动前先执行npm install & npm run init）
 - 在IDE中运行io.github.yangziwen.webmonitor.Server中的main方法启动后端代码，监听8050端口（如果仅需调试前端代码，则后端也可按步骤4的方式启动）
 - 访问 [http://localhost:8090](http://localhost:8090)，即可按热部署的方式开发和调试前后端代码

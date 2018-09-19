@@ -5,6 +5,8 @@ import static io.github.yangziwen.webmonitor.util.ExecUtil.exec;
 import static io.github.yangziwen.webmonitor.util.ExecUtil.waitFor;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -16,13 +18,20 @@ public class VueBuilder {
     public static void main(String[] args) {
         String basePath = System.getProperty("basedir");
         String frontendPath = FilenameUtils.concat(basePath, "src/main/frontend");
-        waitFor(consume(exec("npm run build", new File(frontendPath)), input -> {
-            byte[] bytes = new byte[1024];
-            int len = 0;
-            while ((len = input.read(bytes)) != -1) {
-                System.out.print(new String(ArrayUtils.subarray(bytes, 0, len)));
-            }
-        }));
+        runCommand("npm install", frontendPath);
+        runCommand("npm run build", frontendPath);
+    }
+
+    private static void runCommand(String cmd, String path) {
+        waitFor(consume(exec(cmd, new File(path)), VueBuilder::printInputStream));
+    }
+
+    private static void printInputStream(InputStream input) throws IOException {
+        byte[] bytes = new byte[1024];
+        int len = 0;
+        while ((len = input.read(bytes)) != -1) {
+            System.out.print(new String(ArrayUtils.subarray(bytes, 0, len)));
+        }
     }
 
 }

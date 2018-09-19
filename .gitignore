@@ -12,6 +12,7 @@ src/main/frontend/src/config/env.js
 src/main/frontend/index_prod.html
 src/main/frontend/index.html
 src/main/resources/static/
+package-lock.json
 .project
 .classpath
 .settings/
