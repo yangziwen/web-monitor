@@ -34,7 +34,12 @@ public class ElementRing<E> {
     }
 
     public int nextPos() {
-        return getIndex(posHolder.incrementAndGet());
+        long pos = posHolder.incrementAndGet();
+        long value;
+        for (int i = 0; i < 3 && (value = posHolder.get()) >= capacity; i++) {
+            posHolder.compareAndSet(value, value - capacity);
+        }
+        return getIndex(pos);
     }
 
     public E set(int index, E element) {
