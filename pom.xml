@@ -46,9 +46,9 @@
 			<version>5.1.22</version>
 		</dependency>
 		<dependency>
-			<groupId>org.sql2o</groupId>
-			<artifactId>sql2o</artifactId>
-			<version>1.5.4</version>
+			<groupId>io.github.yangziwen</groupId>
+			<artifactId>quick-dao-sql2o</artifactId>
+			<version>0.0.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>

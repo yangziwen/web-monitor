@@ -40,6 +40,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
+import io.github.yangziwen.quickdao.core.Criteria;
 import io.github.yangziwen.webmonitor.command.converter.DateConverter;
 import io.github.yangziwen.webmonitor.command.converter.TimeIntervalConverter;
 import io.github.yangziwen.webmonitor.metrics.UrlMetricsManager;
@@ -48,7 +49,6 @@ import io.github.yangziwen.webmonitor.metrics.bean.NginxAccess;
 import io.github.yangziwen.webmonitor.metrics.bean.UrlMetrics;
 import io.github.yangziwen.webmonitor.metrics.parse.NginxAccessParser;
 import io.github.yangziwen.webmonitor.model.UrlMetricsResult;
-import io.github.yangziwen.webmonitor.repository.base.QueryMap;
 import io.github.yangziwen.webmonitor.service.MonitorService;
 import io.github.yangziwen.webmonitor.util.Progress;
 import lombok.Data;
@@ -348,9 +348,9 @@ public class ImportDataCommand implements Command {
                 .map(metrics -> UrlMetricsResult.from(metrics, beginTime, endTime))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-        MonitorService.deleteUrlMetricsResultsByParams(new QueryMap()
-                .param("endTime__gt", beginTime)
-                .param("endTime__le", endTime));
+        MonitorService.deleteUrlMetricsResultsByParams(new Criteria()
+                .and("endTime").gt(beginTime)
+                .and("endTime").le(endTime));
         MonitorService.batchSaveUrlMetricsResults(results);
     }
 

@@ -12,8 +12,8 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
+import io.github.yangziwen.quickdao.core.Criteria;
 import io.github.yangziwen.webmonitor.model.UrlPattern;
-import io.github.yangziwen.webmonitor.repository.base.QueryMap;
 import io.github.yangziwen.webmonitor.service.MonitorService;
 import io.github.yangziwen.webmonitor.util.ApiScanner;
 import io.github.yangziwen.webmonitor.util.ApiScanner.Result;
@@ -61,7 +61,7 @@ public class ScanApiCommand implements Command {
                 .map(UrlPattern::getProject)
                 .distinct()
                 .collect(Collectors.toList());
-        MonitorService.deleteUrlPatternsByParams(new QueryMap().param("project__in", projects));
+        MonitorService.deleteUrlPatternsByParams(new Criteria().and("project").in(projects));
         MonitorService.batchSaveUrlPatterns(patterns);
         log.info("import {} apis of project{} successfully", patterns.size(), projects);
     }

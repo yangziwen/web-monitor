@@ -11,6 +11,9 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 
+import io.github.yangziwen.quickdao.core.Criteria;
+import io.github.yangziwen.quickdao.core.Query;
+import io.github.yangziwen.quickdao.core.Order.Direction;
 import io.github.yangziwen.webmonitor.metrics.UrlMetricsManager;
 import io.github.yangziwen.webmonitor.metrics.UrlPatternManager;
 import io.github.yangziwen.webmonitor.metrics.bean.PeriodUrlMetrics;
@@ -19,7 +22,6 @@ import io.github.yangziwen.webmonitor.model.UrlMetricsResult;
 import io.github.yangziwen.webmonitor.model.UrlPattern;
 import io.github.yangziwen.webmonitor.repository.UrlMetricsResultRepo;
 import io.github.yangziwen.webmonitor.repository.UrlPatternRepo;
-import io.github.yangziwen.webmonitor.repository.base.QueryMap;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -61,14 +63,14 @@ public class MonitorService {
         urlPatternRepo.batchInsert(patterns);
     }
 
-    public static void deleteUrlPatternsByParams(Map<String, Object> params) {
-        urlPatternRepo.deleteByParams(params);
+    public static void deleteUrlPatternsByParams(Criteria criteria) {
+        urlPatternRepo.delete(criteria);
     }
 
     public static List<UrlMetrics> getUrlMetricsResultsBetween(Date beginTime, Date endTime) {
-        QueryMap params = new QueryMap()
-                .param("endTime__ge", beginTime)
-                .param("endTime__le", endTime);
+        Criteria params = new Criteria()
+                .and("endTime").ge(beginTime)
+                .and("endTime").le(endTime);
         return urlMetricsResultRepo.list(params).stream()
                 .collect(Collectors.groupingBy(UrlMetricsResult::getUrl))
                 .entrySet().stream()
@@ -98,19 +100,21 @@ public class MonitorService {
     }
 
     public static List<UrlMetrics> getUrlMetricsResultsOfUrl(String url, Date beginTime, Date endTime) {
-        QueryMap params = new QueryMap()
-                .param("endTime__ge", beginTime)
-                .param("endTime__le", endTime)
-                .param("url", url)
-                .orderByAsc("endTime");
-        return urlMetricsResultRepo.list(params).stream()
+        Criteria criteria = new Criteria()
+                .and("endTime").ge(beginTime)
+                .and("endTime").le(endTime)
+                .and("url").eq(url);
+        Query query = new Query()
+                .where(criteria)
+                .orderBy("endTime", Direction.DESC);
+        return urlMetricsResultRepo.list(query).stream()
                 .map(result -> new PeriodUrlMetrics(result))
                 .peek(m -> m.setProject(urlPatternMapping.get(m.getUrlPattern())))
                 .collect(Collectors.toList());
     }
 
-    public static void deleteUrlMetricsResultsByParams(Map<String, Object> params) {
-        urlMetricsResultRepo.deleteByParams(params);
+    public static void deleteUrlMetricsResultsByParams(Criteria criteria) {
+        urlMetricsResultRepo.delete(criteria);
     }
 
     public static void batchSaveUrlMetricsResults(List<UrlMetricsResult> results) {

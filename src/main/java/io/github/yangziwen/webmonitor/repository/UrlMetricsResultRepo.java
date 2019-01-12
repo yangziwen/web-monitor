@@ -2,13 +2,15 @@ package io.github.yangziwen.webmonitor.repository;
 
 import javax.sql.DataSource;
 
-import io.github.yangziwen.webmonitor.model.UrlMetricsResult;
-import io.github.yangziwen.webmonitor.repository.base.BaseRepository;
+import org.sql2o.Sql2o;
 
-public class UrlMetricsResultRepo extends BaseRepository<UrlMetricsResult> {
+import io.github.yangziwen.quickdao.sql2o.BaseSql2oRepository;
+import io.github.yangziwen.webmonitor.model.UrlMetricsResult;
+
+public class UrlMetricsResultRepo extends BaseSql2oRepository<UrlMetricsResult> {
 
     public UrlMetricsResultRepo(DataSource dataSource) {
-        super(dataSource);
+        super(new Sql2o(dataSource));
     }
 
 }

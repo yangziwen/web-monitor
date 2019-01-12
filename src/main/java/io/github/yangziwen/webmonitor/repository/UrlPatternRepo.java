@@ -1,23 +1,25 @@
 package io.github.yangziwen.webmonitor.repository;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
-import io.github.yangziwen.webmonitor.model.UrlPattern;
-import io.github.yangziwen.webmonitor.repository.base.BaseRepository;
+import org.sql2o.Sql2o;
 
-public class UrlPatternRepo extends BaseRepository<UrlPattern> {
+import io.github.yangziwen.quickdao.core.Query;
+import io.github.yangziwen.quickdao.sql2o.BaseSql2oRepository;
+import io.github.yangziwen.webmonitor.model.UrlPattern;
+
+public class UrlPatternRepo extends BaseSql2oRepository<UrlPattern> {
 
     public UrlPatternRepo(DataSource dataSource) {
-        super(dataSource);
+        super(new Sql2o(dataSource));
     }
 
     public List<String> getAllProjects() {
-        return doList("select distinct project as project from url_pattern", Collections.<String, Object>emptyMap())
-                .stream()
+        Query query = new Query().select("distinct project as project");
+        return list(query).stream()
                 .map(UrlPattern::getProject)
                 .sorted()
                 .collect(Collectors.toList());
