@@ -248,7 +248,7 @@
                 }
             },
             refreshTableColumns() {
-                if (this.$refs.metricsTable.width() > 1200) {
+                if (this.$refs.metricsTable && this.$refs.metricsTable.width() > 1200) {
                     this.fixColumn = false;
                 } else {
                     this.fixColumn = true;
@@ -276,6 +276,9 @@
                 const url = `/monitor/metrics/between/list.json?beginTime=${beginTime}&endTime=${endTime}`;
                 this.$http.get(url).then(resp => {
                     const data = resp.data.data;
+                    if (!data) {
+                        return;
+                    }
                     data.forEach(row => {
                         const { cnt, distributionList } = row;
                         let i = 0, len = distributionList.length, cur = 0, ceil = cnt * 0.95;

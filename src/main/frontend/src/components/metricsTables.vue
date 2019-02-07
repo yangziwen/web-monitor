@@ -205,7 +205,7 @@
                     width: 140,
                     sortable: true,
                     render: (h, params) => {
-                        return (params.row.errorRatio * 100).toFixed(2) + '%';
+                        return h('span', (params.row.errorRatio * 100).toFixed(2) + '%');
                     }
                 }, {
                     key: 'slowRatio',
@@ -213,7 +213,7 @@
                     width: 140,
                     sortable: true,
                     render: (h, params) => {
-                        return (params.row.slowRatio * 100).toFixed(2) + '%';
+                        return h('span', (params.row.slowRatio * 100).toFixed(2) + '%');
                     }
                 }, {
                     key: 'status',
