@@ -9,8 +9,6 @@ src/main/frontend/npm-debug.log
 src/main/frontend/node_modules/
 src/main/frontend/src/config/*.tmp
 src/main/frontend/src/config/env.js
-src/main/frontend/index_prod.html
-src/main/frontend/index.html
 src/main/resources/static/
 package-lock.json
 .project
