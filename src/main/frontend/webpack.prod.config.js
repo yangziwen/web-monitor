@@ -30,11 +30,11 @@ module.exports = merge(webpackBaseConfig, {
                 NODE_ENV: '"production"'
             }
         }),
-        /*new webpack.optimize.UglifyJsPlugin({
+        new webpack.optimize.UglifyJsPlugin({
             compress: {
                 warnings: false
             }
-        }),*/
+        }),
         new HtmlWebpackPlugin({
             filename: '../index_prod.html',
             template: './src/template/index.ejs',
