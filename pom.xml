@@ -48,7 +48,7 @@
 		<dependency>
 			<groupId>io.github.yangziwen</groupId>
 			<artifactId>quick-dao-sql2o</artifactId>
-			<version>0.0.3</version>
+			<version>0.0.13</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
