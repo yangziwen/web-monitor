@@ -7,7 +7,6 @@ import javax.sql.DataSource;
 
 import org.sql2o.Sql2o;
 
-import io.github.yangziwen.quickdao.core.Query;
 import io.github.yangziwen.quickdao.sql2o.BaseSql2oRepository;
 import io.github.yangziwen.webmonitor.model.UrlPattern;
 
@@ -18,8 +17,10 @@ public class UrlPatternRepo extends BaseSql2oRepository<UrlPattern> {
     }
 
     public List<String> getAllProjects() {
-        Query query = new Query().select("distinct project as project");
-        return list(query).stream()
+        return listQuery(query -> query
+                .selectExpr(expr -> expr.distinct(UrlPattern::getProject))
+                .as(UrlPattern::getProject))
+                .stream()
                 .map(UrlPattern::getProject)
                 .sorted()
                 .collect(Collectors.toList());
