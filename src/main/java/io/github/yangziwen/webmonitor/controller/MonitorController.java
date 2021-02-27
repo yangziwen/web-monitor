@@ -25,6 +25,8 @@ public class MonitorController extends BaseController {
 
     private static final String DEFAULT_METRICS_SORT = "url_asc";
 
+    private static volatile boolean flag = false;
+
     private MonitorController() {}
 
     public static void init() {
@@ -39,6 +41,14 @@ public class MonitorController extends BaseController {
 
         // 获取所有项目列表
         Spark.get("/monitor/projects.json", (request, response) -> {
+            int i = 1;
+            flag = !flag;
+            while (i > 0 && flag) {
+                i = i + 1;
+                if (i > 1000000) {
+                    i = 1;
+                }
+            }
             response.type(CONTENT_TYPE_JSON);
             return OK.newResult().data(MonitorService.getAllProjects());
         }, JSON::toJSONString);
