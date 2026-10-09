@@ -158,6 +158,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
+				<version>3.3.0</version>
 				<configuration>
 					<appendAssemblyId>false</appendAssemblyId>
 					<descriptorRefs>
@@ -174,7 +175,7 @@
 						<id>make-assembly</id>
 						<phase>package</phase>
 						<goals>
-							<goal>assembly</goal>
+							<goal>single</goal>
 						</goals>
 					</execution>
 				</executions>
